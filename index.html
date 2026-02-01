@@ -1,9 +1,9 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/index.html b/index.html
-index c3cb95547ecbe8e61c8f7c4455038bc6ff82fab0..2841832f63d7a1453a738a24e3ea06896302c8b0 100644
+index c3cb95547ecbe8e61c8f7c4455038bc6ff82fab0..5dc134b31c629a48ba6be4a60236f760a4feffe3 100644
 --- a/index.html
 +++ b/index.html
-@@ -1,13363 +1,2321 @@
+@@ -1,13363 +1,2326 @@
 - (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 -diff --git a/index.html b/index.html
 -index 5927f92bcfc9bcbbd0b823695cc04b5af29b480d..9780160ae7e75eb5bc4726ded2292df9650da990 100644
@@ -14140,6 +14140,9 @@ index c3cb95547ecbe8e61c8f7c4455038bc6ff82fab0..2841832f63d7a1453a738a24e3ea0689
 +          <div class="stepCard" id="stepPlayer" data-step="player">
 +            <div class="stepTitle">2. Wybierz gracza</div>
 +            <div class="choiceRow" id="playerRow" role="group" aria-label="Wybór gracza"></div>
++            <div class="stepActions">
++              <button class="primaryBtn" id="playerNext" type="button">Dalej</button>
++            </div>
 +          </div>
 +
 +          <div class="stepCard" id="stepMode" data-step="mode">
@@ -14357,6 +14360,7 @@ index c3cb95547ecbe8e61c8f7c4455038bc6ff82fab0..2841832f63d7a1453a738a24e3ea0689
 +  const stepNick = document.getElementById("stepNick");
 +  const stepPlayer = document.getElementById("stepPlayer");
 +  const stepMode = document.getElementById("stepMode");
++  const playerNext = document.getElementById("playerNext");
 +  const playerRow = document.getElementById("playerRow");
 +  const levelRow = document.getElementById("levelRow");
 +  const levelHint = document.getElementById("levelHint");
@@ -15642,6 +15646,7 @@ index c3cb95547ecbe8e61c8f7c4455038bc6ff82fab0..2841832f63d7a1453a738a24e3ea0689
 +    state.nick = clean;
 +    setStep("player");
 +  });
++  playerNext.addEventListener("click", ()=> setStep("mode"));
 +  quickLearn.addEventListener("click", ()=> quickStart("learn"));
 +  quickTest.addEventListener("click", ()=> quickStart("test"));
 +
