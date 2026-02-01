@@ -1,9 +1,9 @@
  (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/index.html b/index.html
-index c3cb95547ecbe8e61c8f7c4455038bc6ff82fab0..9780160ae7e75eb5bc4726ded2292df9650da990 100644
+index c3cb95547ecbe8e61c8f7c4455038bc6ff82fab0..2841832f63d7a1453a738a24e3ea06896302c8b0 100644
 --- a/index.html
 +++ b/index.html
-@@ -1,13363 +1,2281 @@
+@@ -1,13363 +1,2321 @@
 - (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 -diff --git a/index.html b/index.html
 -index 5927f92bcfc9bcbbd0b823695cc04b5af29b480d..9780160ae7e75eb5bc4726ded2292df9650da990 100644
@@ -13635,6 +13635,8 @@ index c3cb95547ecbe8e61c8f7c4455038bc6ff82fab0..9780160ae7e75eb5bc4726ded2292df9
 +    .stepActions{
 +      display:flex;
 +      justify-content:flex-end;
++      gap:8px;
++      flex-wrap:wrap;
 +    }
 +    .primaryBtn{
 +      cursor:pointer;
@@ -13649,6 +13651,22 @@ index c3cb95547ecbe8e61c8f7c4455038bc6ff82fab0..9780160ae7e75eb5bc4726ded2292df9
 +      font-weight: 950;
 +    }
 +    .primaryBtn:disabled{
++      opacity: .5;
++      cursor:not-allowed;
++    }
++    .secondaryBtn{
++      cursor:pointer;
++      user-select:none;
++      touch-action: manipulation;
++      padding: 10px 14px;
++      border-radius: 12px;
++      border:1px solid rgba(48,54,61,.95);
++      background: rgba(22,27,34,.55);
++      color: var(--text);
++      font-size: 13px;
++      font-weight: 900;
++    }
++    .secondaryBtn:disabled{
 +      opacity: .5;
 +      cursor:not-allowed;
 +    }
@@ -14114,6 +14132,8 @@ index c3cb95547ecbe8e61c8f7c4455038bc6ff82fab0..9780160ae7e75eb5bc4726ded2292df9
 +            </label>
 +            <div class="stepActions">
 +              <button class="primaryBtn" id="nickNext" type="button" disabled>Dalej</button>
++              <button class="secondaryBtn" id="quickLearn" type="button" disabled>Szybki start: Nauka</button>
++              <button class="secondaryBtn" id="quickTest" type="button" disabled>Szybki start: Test</button>
 +            </div>
 +          </div>
 +
@@ -14332,6 +14352,8 @@ index c3cb95547ecbe8e61c8f7c4455038bc6ff82fab0..9780160ae7e75eb5bc4726ded2292df9
 +  const pillState = document.getElementById("pillState");
 +  const nickEl = document.getElementById("nick");
 +  const nickNext = document.getElementById("nickNext");
++  const quickLearn = document.getElementById("quickLearn");
++  const quickTest = document.getElementById("quickTest");
 +  const stepNick = document.getElementById("stepNick");
 +  const stepPlayer = document.getElementById("stepPlayer");
 +  const stepMode = document.getElementById("stepMode");
@@ -14648,6 +14670,23 @@ index c3cb95547ecbe8e61c8f7c4455038bc6ff82fab0..9780160ae7e75eb5bc4726ded2292df9
 +  function updateNickAction(){
 +    const val = sanitizeNick(nickEl.value);
 +    nickNext.disabled = !val;
++    quickLearn.disabled = !val;
++    quickTest.disabled = !val;
++  }
++
++  function quickStart(mode){
++    const clean = sanitizeNick(nickEl.value);
++    nickEl.value = clean;
++    state.nick = clean;
++    if (!selectedPlayerId){
++      selectedPlayerId = PLAYERS[0].id;
++    }
++    state.playerId = selectedPlayerId;
++    savePlayer(selectedPlayerId);
++    renderPlayerButtons();
++    renderRecords(selectedPlayerId);
++    updatePlayerPill();
++    startMode(mode);
 +  }
 +
 +  function updateRecord(mode, playerId, run, levelId){
@@ -15603,6 +15642,8 @@ index c3cb95547ecbe8e61c8f7c4455038bc6ff82fab0..9780160ae7e75eb5bc4726ded2292df9
 +    state.nick = clean;
 +    setStep("player");
 +  });
++  quickLearn.addEventListener("click", ()=> quickStart("learn"));
++  quickTest.addEventListener("click", ()=> quickStart("test"));
 +
 +  tileRow.addEventListener("click", (e)=>{
 +    const tile=e.target.closest(".tile");
@@ -15647,7 +15688,6 @@ index c3cb95547ecbe8e61c8f7c4455038bc6ff82fab0..9780160ae7e75eb5bc4726ded2292df9
 +</script>
 +</body>
 +</html>
-+
  
 EOF
 )
