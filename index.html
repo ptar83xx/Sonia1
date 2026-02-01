@@ -1,2262 +1,1916 @@
-<!doctype html>
-<html lang="pl">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0d1117" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Matematyka Piesków dla Sonii</title>
-
-  <style>
-    :root{
-      --bg:#0d1117;
-      --border:#30363d;
-      --text:#c9d1d9;
-      --muted:#8b949e;
-      --blue:#58a6ff;
-      --green:#2ea043;
-      --red:#f85149;
-      --yellow:#d29922;
-      --purple:#a371f7;
-      --shadow:rgba(0,0,0,.35);
-      --r18:18px;
-      --r16:16px;
-      --vh: 1vh;
-    }
-    *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { height:100%; }
-    body{
-      margin:0;
-      background:
-        radial-gradient(1100px 760px at 20% 0%, rgba(88,166,255,.10), transparent 55%),
-        radial-gradient(900px 650px at 80% 20%, rgba(163,113,247,.10), transparent 55%),
-        var(--bg);
-      color:var(--text);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      overscroll-behavior:none;
-      touch-action:manipulation;
-      overflow-x:hidden;
-    }
-
-    .safe{
-      padding:
-        calc(16px + env(safe-area-inset-top))
-        calc(16px + env(safe-area-inset-right))
-        calc(16px + env(safe-area-inset-bottom))
-        calc(16px + env(safe-area-inset-left));
-      min-height:100%;
-      display:grid;
-      place-items:center;
-    }
-    .app{ width:min(980px, 100%); display:grid; gap:14px; }
-
-    .topbar{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-      justify-content:space-between;
-    }
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 12px;
-      border-radius:999px;
-      background: rgba(22,27,34,.85);
-      border:1px solid var(--border);
-      box-shadow: 0 10px 26px var(--shadow);
-      font-size:14px;
-      line-height:1;
-      white-space:nowrap;
-    }
-
-    .card{
-      border:1px solid var(--border);
-      border-radius: var(--r18);
-      background: linear-gradient(180deg, rgba(22,27,34,.96), rgba(22,27,34,.90));
-      box-shadow: 0 18px 44px var(--shadow);
-      overflow:hidden;
-    }
-
-    .title{
-      display:grid;
-      gap:6px;
-      text-align:center;
-      padding: 18px 18px 10px;
-    }
-    .title h1{
-      margin:0;
-      font-size: clamp(26px, 3.5vw, 40px);
-      font-weight: 950;
-      letter-spacing:.2px;
-    }
-    .title p{
-      margin:0;
-      color:var(--muted);
-      font-size: 14px;
-      line-height:1.35;
-    }
-
-    .select{
-      padding: 10px 18px 18px;
-      display:grid;
-      gap:12px;
-    }
-    .row{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
-    }
-    label.nick{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      color: var(--muted);
-      font-size: 13px;
-    }
-    input[type="text"]{
-      font-size:16px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border:1px solid rgba(48,54,61,.95);
-      background: rgba(22,27,34,.70);
-      color: var(--text);
-      outline:none;
-      min-width: 180px;
-    }
-
-    .tileRow{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:10px;
-    }
-    @media (max-width: 760px){
-      .tileRow{ grid-template-columns: 1fr; }
-    }
-    .tile{
-      cursor:pointer;
-      user-select:none;
-      touch-action: manipulation;
-      padding: 12px 12px;
-      border-radius: 16px;
-      border:1px solid rgba(48,54,61,.95);
-      background: rgba(13,17,23,.40);
-      box-shadow: 0 10px 22px rgba(0,0,0,.22);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      min-height: 72px;
-      transition: transform 70ms ease, border-color 120ms ease, background 120ms ease;
-    }
-    .tile:active{ transform: translateY(1px); }
-    .tile:hover{ border-color: rgba(88,166,255,.40); background: rgba(13,17,23,.52); }
-    .tile .left{ display:grid; gap:2px; }
-    .tile strong{ font-size: 15px; font-weight: 950; letter-spacing:.2px; }
-    .tile span{ font-size: 12px; color: var(--muted); }
-    .chip{
-      font-size: 12px;
-      font-weight: 950;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border:1px solid rgba(163,113,247,.45);
-      background: rgba(163,113,247,.12);
-      white-space:nowrap;
-    }
-
-    .subCard{
-      border:1px solid rgba(48,54,61,.95);
-      border-radius: var(--r16);
-      background: rgba(13,17,23,.35);
-      padding: 14px;
-      display:grid;
-      gap:10px;
-    }
-    .tiny{
-      font-size: 12px;
-      color: var(--muted);
-    }
-    .subHead{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      gap:10px;
-    }
-    .tabs{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .tab{
-      cursor:pointer;
-      user-select:none;
-      touch-action: manipulation;
-      padding: 9px 10px;
-      border-radius: 999px;
-      border:1px solid rgba(48,54,61,.95);
-      background: rgba(22,27,34,.55);
-      color: var(--text);
-      font-size: 12px;
-      font-weight: 950;
-    }
-    .tab.active{
-      border-color: rgba(163,113,247,.55);
-      box-shadow: 0 0 0 2px rgba(163,113,247,.14);
-      background: rgba(163,113,247,.10);
-    }
-    .choiceRow{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-    .choiceBtn{
-      cursor:pointer;
-      user-select:none;
-      touch-action: manipulation;
-      padding: 9px 12px;
-      border-radius: 999px;
-      border:1px solid rgba(48,54,61,.95);
-      background: rgba(22,27,34,.55);
-      color: var(--text);
-      font-size: 12px;
-      font-weight: 950;
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-    }
-    .choiceBtn.active{
-      border-color: rgba(46,160,67,.55);
-      box-shadow: 0 0 0 2px rgba(46,160,67,.16);
-      background: rgba(46,160,67,.12);
-    }
-    .choiceBtn.locked{
-      opacity:.45;
-      cursor:not-allowed;
-    }
-    .choiceBtn .miniBadge{
-      padding:4px 8px;
-      border-radius:999px;
-      border:1px solid rgba(88,166,255,.35);
-      background: rgba(88,166,255,.10);
-      font-size:10px;
-      font-weight:900;
-    }
-
-    .summaryLine{
-      padding:10px 12px;
-      border-radius: 14px;
-      border:1px solid rgba(88,166,255,.28);
-      background: rgba(88,166,255,.08);
-      color: var(--text);
-      font-size: 13px;
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-      justify-content:space-between;
-    }
-
-    .tableWrap{
-      overflow:auto;
-      -webkit-overflow-scrolling: touch;
-      border-radius: 14px;
-      border:1px solid rgba(48,54,61,.95);
-      background: rgba(22,27,34,.45);
-    }
-    table{ width:100%; border-collapse: collapse; font-size: 13px; }
-    th, td{ padding: 10px 10px; border-bottom:1px solid rgba(48,54,61,.75); text-align:left; }
-    th{
-      color: var(--muted);
-      font-weight: 950;
-      font-size: 12px;
-      background: rgba(13,17,23,.35);
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-    tr:last-child td{ border-bottom:none; }
-    .rank{ width:56px; color:var(--muted); font-weight: 950; }
-    .scorecol{ font-variant-numeric: tabular-nums; font-weight: 950; }
-
-    /* ===== FULLSCREEN PLAY ===== */
-    .fullscreen{
-      position: fixed;
-      inset: 0;
-      z-index: 999;
-      display: none;
-      height: 100dvh;
-      height: calc(var(--vh) * 100);
-      background:
-        radial-gradient(1100px 760px at 20% 0%, rgba(88,166,255,.10), transparent 55%),
-        radial-gradient(900px 650px at 80% 20%, rgba(163,113,247,.10), transparent 55%),
-        var(--bg);
-    }
-    .fullscreen.show{ display:block; }
-
-    .playSafe{
-      width:100%;
-      height:100%;
-      padding:
-        calc(12px + env(safe-area-inset-top))
-        calc(12px + env(safe-area-inset-right))
-        calc(12px + env(safe-area-inset-bottom))
-        calc(12px + env(safe-area-inset-left));
-      display:grid;
-    }
-
-    .playCard{
-      position:relative;
-      width:100%;
-      height:100%;
-      border:1px solid var(--border);
-      border-radius: var(--r18);
-      background: linear-gradient(180deg, rgba(22,27,34,.96), rgba(22,27,34,.90));
-      box-shadow: 0 18px 44px var(--shadow);
-      overflow:hidden;
-      display:grid;
-    }
-
-    .playPad{
-      padding:16px;
-      height:100%;
-      display:grid;
-      gap:12px;
-      grid-template-rows: auto auto 1fr auto;
-    }
-
-    .playTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      gap:10px;
-    }
-
-    .miniBtn{
-      cursor:pointer;
-      user-select:none;
-      touch-action: manipulation;
-      padding: 10px 12px;
-      border-radius: 999px;
-      border:1px solid rgba(48,54,61,.95);
-      background: rgba(13,17,23,.55);
-      color: var(--text);
-      font-weight: 950;
-      font-size: 12px;
-    }
-
-    .hud{
-      display:grid;
-      gap:10px;
-    }
-    .bars{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
-    @media (max-width: 760px){
-      .bars{ grid-template-columns: 1fr; }
-    }
-    .barlabel{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      color: var(--muted);
-      font-size: 12px;
-      margin: 0 2px 6px;
-    }
-    .progress{
-      height:10px;
-      border-radius:999px;
-      background: rgba(139,148,158,.14);
-      border:1px solid rgba(48,54,61,.85);
-      overflow:hidden;
-    }
-    .progress > div{
-      height:100%;
-      width:0%;
-      background: linear-gradient(90deg, rgba(88,166,255,.95), rgba(46,160,67,.95));
-      transition: width 220ms ease;
-    }
-    .timer > div{
-      background: linear-gradient(90deg, rgba(210,153,34,.95), rgba(248,81,73,.95));
-      transition: width 80ms linear;
-    }
-
-    .stats{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-    }
-    .stat{
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid rgba(48,54,61,.9);
-      background: rgba(13,17,23,.55);
-      font-size:13px;
-      color: var(--text);
-      display:flex;
-      gap:8px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-    .stat.hidden{ display:none; }
-
-    .lives{
-      display:inline-flex;
-      gap:6px;
-      vertical-align:middle;
-      margin-left:6px;
-    }
-    .heart{
-      width:12px;height:12px;border-radius:3px;
-      background: rgba(248,81,73,.35);
-      border:1px solid rgba(248,81,73,.55);
-    }
-    .heart.on{
-      background: rgba(248,81,73,.9);
-      border-color: rgba(248,81,73,.95);
-    }
-
-    .questionWrap{
-      display:grid;
-      gap:10px;
-      padding:14px;
-      border-radius: var(--r16);
-      border:1px solid rgba(48,54,61,.95);
-      background: linear-gradient(180deg, rgba(13,17,23,.55), rgba(13,17,23,.35));
-    }
-    .questionLine{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .big{
-      font-size: clamp(30px, 5.4vw, 56px);
-      font-weight: 950;
-      letter-spacing:.4px;
-    }
-    .badge{
-      padding:6px 10px;
-      border-radius:999px;
-      background: rgba(88,166,255,.12);
-      border:1px solid rgba(88,166,255,.28);
-      font-size:12px;
-      font-weight:900;
-      white-space:nowrap;
-      color: var(--text);
-    }
-
-    .answers{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:10px;
-    }
-    @media (max-width: 760px){
-      .answers{ grid-template-columns: 1fr; }
-    }
-    .ansBtn{
-      cursor:pointer;
-      user-select:none;
-      touch-action: manipulation;
-      padding: 18px 12px;
-      border-radius: 18px;
-      border:1px solid rgba(48,54,61,.95);
-      background: rgba(22,27,34,.70);
-      color: var(--text);
-      font-weight: 950;
-      font-size: 28px;
-      letter-spacing:.3px;
-    }
-
-    .typeWrap{
-      display:none;
-      gap:10px;
-      padding: 12px;
-      border-radius: var(--r16);
-      border:1px solid rgba(48,54,61,.95);
-      background: rgba(13,17,23,.35);
-    }
-    .typeWrap.show{ display:grid; }
-
-    .typeTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      gap:10px;
-    }
-    .typeDisplay{
-      flex: 1;
-      min-width: 220px;
-      padding: 14px 14px;
-      border-radius: 16px;
-      border:1px solid rgba(48,54,61,.95);
-      background: rgba(22,27,34,.70);
-      font-size: 28px;
-      font-weight: 950;
-      letter-spacing: .4px;
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-    }
-    .tries{
-      padding: 10px 12px;
-      border-radius: 999px;
-      border:1px solid rgba(210,153,34,.55);
-      background: rgba(210,153,34,.10);
-      font-size: 12px;
-      font-weight: 950;
-      white-space: nowrap;
-      color: var(--text);
-    }
-
-    .keypad{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:10px;
-    }
-    .key{
-      cursor:pointer;
-      user-select:none;
-      touch-action: manipulation;
-      padding: 16px 12px;
-      border-radius: 16px;
-      border:1px solid rgba(48,54,61,.95);
-      background: rgba(22,27,34,.70);
-      font-weight: 980;
-      font-size: 22px;
-      text-align:center;
-    }
-    .key.ok{
-      border-color: rgba(46,160,67,.55);
-      background: rgba(46,160,67,.12);
-    }
-    .key.del{
-      border-color: rgba(248,81,73,.55);
-      background: rgba(248,81,73,.10);
-    }
-
-    .stage{
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      display:grid;
-      place-items:center;
-    }
-    .stageInner{
-      width: min(860px, 94%);
-      display:grid;
-      place-items:center;
-      gap:12px;
-      padding: 8px;
-    }
-    .toast{
-      padding: 12px 12px;
-      border-radius: 16px;
-      border:1px solid rgba(48,54,61,.95);
-      background: rgba(13,17,23,.80);
-      color: var(--text);
-      font-weight: 950;
-      font-size: 14px;
-      text-align:center;
-      opacity:0;
-      transform: translateY(8px);
-      transition: opacity 140ms ease, transform 140ms ease;
-      max-width: 820px;
-    }
-    .toast.show{ opacity:1; transform: translateY(0); }
-
-    .eqBig{
-      display:none;
-      padding: 16px 18px;
-      border-radius: 18px;
-      border:1px solid rgba(88,166,255,.55);
-      background: rgba(88,166,255,.10);
-      text-align:center;
-    }
-    .eqBig.show{ display:block; }
-    .eqBig .t{
-      margin:0;
-      font-size: clamp(34px, 6vw, 72px);
-      font-weight: 990;
-      letter-spacing:.3px;
-    }
-
-    .winMsg{
-      display:none;
-      text-align:center;
-      padding: 18px 18px;
-      border-radius: 18px;
-      border:1px solid rgba(46,160,67,.55);
-      background: rgba(46,160,67,.10);
-      max-width: 860px;
-    }
-    .winMsg.show{ display:block; }
-    .winMsg .h{
-      font-size: clamp(34px, 6.2vw, 68px);
-      font-weight: 990;
-      margin:0;
-    }
-    .rewardMsg{
-      display:none;
-      text-align:center;
-      padding: 16px 16px;
-      border-radius: 18px;
-      border:1px solid rgba(88,166,255,.55);
-      background: rgba(88,166,255,.10);
-      max-width: 860px;
-    }
-    .rewardMsg.show{ display:block; }
-    .rewardMsg .h{
-      font-size: clamp(26px, 4.4vw, 42px);
-      font-weight: 990;
-      margin:0;
-    }
-
-    .sadDog{
-      width:220px; height:180px;
-      position:relative;
-      display:none;
-      transform: scale(3);
-      transform-origin: center;
-    }
-    .sadDog.show{ display:block; }
-    .sadDog .head{
-      position:absolute; left:50%; top:46px;
-      width:140px; height:120px;
-      transform: translateX(-50%);
-      border-radius: 34px;
-      background: rgba(46,160,67,.10);
-      border:2px solid rgba(46,160,67,.55);
-    }
-    .sadDog .eye{
-      position:absolute; top:88px;
-      width:10px; height:10px;
-      border-radius:999px;
-      background: rgba(201,209,217,.92);
-      border:1px solid rgba(48,54,61,.95);
-    }
-    .sadDog .eye.e1{ left:74px; }
-    .sadDog .eye.e2{ right:74px; }
-    .sadDog .mouth{
-      position:absolute; left:50%; top:144px;
-      width:44px; height:22px;
-      transform: translateX(-50%);
-      border-bottom: 3px solid rgba(201,209,217,.60);
-      border-radius: 0 0 999px 999px;
-    }
-
-    #fx{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      pointer-events:none;
-      display:none;
-    }
-    #fx.show{ display:block; }
-  </style>
-</head>
-
-<body>
-  <div class="safe" id="selectScreen">
-    <div class="app">
-      <div class="topbar">
-        <div class="pill" id="pillState">Stan: WYBIERZ TRYB</div>
-        <div class="pill">iPad: Safari → Udostępnij → <strong>Dodaj do ekranu początkowego</strong></div>
-      </div>
-
-      <div class="card">
-        <div class="title">
-          <h1>Matematyka Piesków dla Sonii</h1>
-          <p>Tryby: Początkujący / Nauka / Mistrz</p>
-        </div>
-
-        <div class="select">
-          <div class="row">
-            <label class="nick">
-              Nick:
-              <input id="nick" type="text" maxlength="16" placeholder="Sonia" value="Sonia" autocomplete="off" />
-            </label>
-            <div class="pill" style="margin:0;">Start: kliknij kafelek trybu</div>
-          </div>
-          <div class="row">
-            <div class="tiny">Wybierz gracza:</div>
-            <div class="choiceRow" id="playerRow" role="group" aria-label="Wybór gracza"></div>
-          </div>
-
-          <div class="tileRow" id="tileRow">
-            <div class="tile" data-mode="beginner">
-              <div class="left">
-                <strong>Początkujący</strong>
-                <span>30 pytań • 15 s • trudność rośnie</span>
-              </div>
-              <div class="chip">15 s</div>
-            </div>
-            <div class="tile" data-mode="learn">
-              <div class="left">
-                <strong>Nauka</strong>
-                <span>Poziomy do odblokowania • nagrody • test 10 pytań</span>
-              </div>
-              <div class="chip">✎</div>
-            </div>
-            <div class="tile" data-mode="master">
-              <div class="left">
-                <strong>Mistrz</strong>
-                <span>30 pytań • wpisywanie • 3 próby</span>
-              </div>
-              <div class="chip">∞</div>
-            </div>
-          </div>
-
-          <div class="subCard">
-            <div class="subHead">
-              <div>
-                <div style="font-weight:950;letter-spacing:.2px;">Poziomy nauki</div>
-                <div class="tiny">Odblokowuj poziomy i odbieraj nagrody.</div>
-              </div>
-            </div>
-            <div class="choiceRow" id="levelRow" role="group" aria-label="Poziomy nauki"></div>
-            <div class="tiny" id="levelHint">Drewniany jest dostępny od razu.</div>
-          </div>
-
-          <div class="subCard">
-            <div class="subHead">
-              <div>
-                <div style="font-weight:950;letter-spacing:.2px;">Skuteczność (ostatnie 10 gier)</div>
-                <div class="tiny">Procent poprawnych + miejsce wśród ostatnich prób.</div>
-              </div>
-              <div class="tabs" id="tabs">
-                <div class="tab active" data-mode="beginner">Początkujący</div>
-                <div class="tab" data-mode="learn">Nauka</div>
-                <div class="tab" data-mode="master">Mistrz</div>
-              </div>
-            </div>
-
-            <div class="summaryLine" id="rankSummary">Brak danych – zagraj, żeby zobaczyć ranking 🙂</div>
-
-            <div class="tableWrap">
-              <table aria-label="Ranking">
-                <thead>
-                  <tr>
-                    <th class="rank">#</th>
-                    <th>Data</th>
-                    <th class="scorecol">Dobrze</th>
-                    <th class="scorecol">Źle</th>
-                    <th class="scorecol">Wynik</th>
-                  </tr>
-                </thead>
-                <tbody id="rankBody"></tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="subCard">
-            <div class="subHead">
-              <div>
-                <div style="font-weight:950;letter-spacing:.2px;">Rekordy gracza</div>
-                <div class="tiny" id="recordPlayer">—</div>
-              </div>
-            </div>
-            <div class="tableWrap">
-              <table aria-label="Rekordy">
-                <thead>
-                  <tr>
-                    <th>Tryb / Poziom</th>
-                    <th class="scorecol">Rekord</th>
-                    <th>Data</th>
-                    <th class="scorecol">Wynik</th>
-                  </tr>
-                </thead>
-                <tbody id="recordBody"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="fullscreen" id="playScreen" aria-hidden="true">
-    <canvas id="fx"></canvas>
-
-    <div class="playSafe">
-      <div class="playCard">
-        <div class="playPad">
-          <div class="playTop">
-            <div class="pill" id="playMode">Tryb: —</div>
-            <div class="pill" id="playerPill">Gracz: —</div>
-            <button class="miniBtn" id="quitBtn">Zakończ</button>
-          </div>
-
-          <div class="hud">
-            <div class="bars">
-              <div>
-                <div class="barlabel"><span>Postęp</span><span id="progressText">0%</span></div>
-                <div class="progress"><div id="progressBar"></div></div>
-              </div>
-              <div>
-                <div class="barlabel"><span id="timeLabel">Czas</span><span><strong id="timeLeft">—</strong></span></div>
-                <div class="progress timer"><div id="timerBar"></div></div>
-              </div>
-            </div>
-
-            <div class="stats">
-              <div class="stat">Pytanie: <strong id="qNum">0</strong>/<span id="qTotal">0</span></div>
-              <div class="stat">Dobrze: <strong id="score">0</strong></div>
-              <div class="stat" id="statLives">Życia: <span class="lives" id="lives"></span></div>
-              <div class="stat" id="hintStat"><span>—</span></div>
-            </div>
-          </div>
-
-          <div class="questionWrap" id="qWrap">
-            <div class="questionLine">
-              <div class="big" id="questionText">—</div>
-              <div class="badge" id="modeBadge">—</div>
-            </div>
-            <div class="answers" id="answers"></div>
-          </div>
-
-          <div class="typeWrap" id="typeWrap" aria-hidden="true">
-            <div class="typeTop">
-              <div class="typeDisplay" id="typeDisplay">0</div>
-              <div class="tries" id="triesPill">—</div>
-            </div>
-            <div class="keypad" id="keypad"></div>
-          </div>
-        </div>
-
-        <div class="stage">
-          <div class="stageInner">
-            <div class="toast" id="toast">—</div>
-
-            <div class="eqBig" id="eqBig" aria-hidden="true">
-              <p class="t" id="eqText">8×4=32</p>
-              <div style="color:var(--muted);font-size:13px;margin-top:8px;">Powtórka wróci wkrótce 🙂</div>
-            </div>
-
-            <div class="winMsg" id="winMsg" aria-hidden="true">
-              <p class="h" id="winMsgTitle">Brawo!</p>
-              <div style="color:var(--muted);font-size:14px;margin-top:8px;">Fajerwerki i fanfary przez chwilę ✨</div>
-            </div>
-
-            <div class="rewardMsg" id="rewardMsg" aria-hidden="true">
-              <p class="h" id="rewardTitle">Nagroda zdobyta!</p>
-              <div class="tiny" id="rewardLine">—</div>
-            </div>
-
-            <div class="sadDog" id="sadDog" aria-hidden="true">
-              <div class="head"></div>
-              <div class="eye e1"></div>
-              <div class="eye e2"></div>
-              <div class="mouth"></div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-<script>
-(() => {
-  "use strict";
-
-  // ===== SETTINGS =====
-  const WIN_CELEBRATION_MS = 10_000;
-  const LOSE_SHOW_MS = 5_000;
-
-  const MODES = {
-    beginner: { label: "Początkujący", total: 30, hasTimer: true,  seconds: 15, input: "choice", lives: true },
-    learn:    { label: "Nauka",        total: 0,   hasTimer: false, seconds: 0,  input: "type",   lives: false },
-    master:   { label: "Mistrz",       total: 30, hasTimer: false, seconds: 0,  input: "type",   lives: true  },
-  };
-
-  const PLAYERS = [
-    { id: "dog", label: "Piesek", emoji: "🐶" },
-    { id: "cat", label: "Kotek", emoji: "🐱" },
-    { id: "kangaroo", label: "Kangurek", emoji: "🦘" },
-  ];
-
-  const LEARN_LEVELS = [
-    { id: "wood", label: "Drewniany", reward: "Naklejka: 🪵", total: 30, ramp: [3,4,5] },
-    { id: "stone", label: "Kamienny", reward: "Odznaka: 🪨", total: 30, ramp: [6,7,8] },
-    { id: "iron", label: "Żelazny", reward: "Tarcza: 🛡️", total: 40, ramp: [9,10,10,10] },
-  ];
-
-  const RAMP5  = [4,5,6,7,8,10];           // beginner blocks of 5
-  const RAMP10 = [3,4,5,6,7,8,9,10,10,10]; // learn blocks of 10
-
-  const LEARN_REPEAT_AFTER = 4;
-  const LEARN_SHOW_EQ_MS = 3000;
-  const LEARN_TEST_COUNT = 10;
-
-  // >>> DOPRACOWANIE: limit powtórek (max 1 powtórka co 2–3 pytania)
-  const LEARN_REPEAT_COOLDOWN_MIN = 2;
-  const LEARN_REPEAT_COOLDOWN_MAX = 3;
-
-  // ===== DOM =====
-  const pillState = document.getElementById("pillState");
-  const nickEl = document.getElementById("nick");
-  const playerRow = document.getElementById("playerRow");
-  const levelRow = document.getElementById("levelRow");
-  const levelHint = document.getElementById("levelHint");
-  const tileRow = document.getElementById("tileRow");
-  const tabs = document.getElementById("tabs");
-  const rankSummary = document.getElementById("rankSummary");
-  const rankBody = document.getElementById("rankBody");
-  const recordPlayer = document.getElementById("recordPlayer");
-  const recordBody = document.getElementById("recordBody");
-
-  const selectScreen = document.getElementById("selectScreen");
-  const playScreen = document.getElementById("playScreen");
-
-  const playMode = document.getElementById("playMode");
-  const playerPill = document.getElementById("playerPill");
-  const quitBtn = document.getElementById("quitBtn");
-
-  const qNum = document.getElementById("qNum");
-  const qTotal = document.getElementById("qTotal");
-  const scoreEl = document.getElementById("score");
-  const livesEl = document.getElementById("lives");
-
-  const questionText = document.getElementById("questionText");
-  const answersWrap = document.getElementById("answers");
-
-  const progressBar = document.getElementById("progressBar");
-  const progressText = document.getElementById("progressText");
-  const timerBar = document.getElementById("timerBar");
-  const timeLeftEl = document.getElementById("timeLeft");
-  const timeLabel = document.getElementById("timeLabel");
-
-  const statLives = document.getElementById("statLives");
-  const hintStat = document.getElementById("hintStat");
-  const modeBadge = document.getElementById("modeBadge");
-
-  const toast = document.getElementById("toast");
-  const eqBig = document.getElementById("eqBig");
-  const eqText = document.getElementById("eqText");
-  const winMsg = document.getElementById("winMsg");
-  const winMsgTitle = document.getElementById("winMsgTitle");
-  const rewardMsg = document.getElementById("rewardMsg");
-  const rewardTitle = document.getElementById("rewardTitle");
-  const rewardLine = document.getElementById("rewardLine");
-  const sadDog = document.getElementById("sadDog");
-
-  const typeWrap = document.getElementById("typeWrap");
-  const typeDisplay = document.getElementById("typeDisplay");
-  const triesPill = document.getElementById("triesPill");
-  const keypad = document.getElementById("keypad");
-
-  const fx = document.getElementById("fx");
-  const fxCtx = fx.getContext("2d");
-
-  // ===== iPad viewport polish =====
-  function setVhVar(){
-    document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
-  }
-  setVhVar();
-  window.addEventListener("resize", setVhVar);
-  window.addEventListener("orientationchange", () => setTimeout(setVhVar, 200));
-
-  // iOS scroll lock
-  let scrollY = 0;
-  function freezeScroll(){
-    scrollY = window.scrollY || 0;
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.width = "100%";
-  }
-  function unfreezeScroll(){
-    const top = document.body.style.top;
-    document.body.style.position = "";
-    document.body.style.top = "";
-    document.body.style.left = "";
-    document.body.style.right = "";
-    document.body.style.width = "";
-    const y = top ? -parseInt(top, 10) : 0;
-    window.scrollTo(0, y);
-  }
-
-  // ===== UTILS =====
-  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
-  const randInt = (a,b)=> (Math.random()*(b-a+1)|0)+a;
-
-  function shuffle(arr){
-    for(let i=arr.length-1;i>0;i--){
-      const j = (Math.random()*(i+1))|0;
-      [arr[i],arr[j]] = [arr[j],arr[i]];
-    }
-    return arr;
-  }
-
-  function sanitizeNick(s){
-    s = (s || "").trim();
-    if (!s) return "Sonia";
-    return s.replace(/\s+/g, " ").slice(0, 16);
-  }
-
-  function fmtDate(ts){
-    const d = new Date(ts);
-    const yy = d.getFullYear();
-    const mm = String(d.getMonth()+1).padStart(2,"0");
-    const dd = String(d.getDate()).padStart(2,"0");
-    return `${yy}-${mm}-${dd}`;
-  }
-  function pctStr(p){ return `${Math.round(p)}%`; }
-
-  // ===== PLAYER + LEVEL STORAGE =====
-  const PLAYER_KEY = "pieski_math_player_v1";
-  const LEARN_PROGRESS_KEY = "pieski_math_learn_progress_v1";
-  const RECORDS_KEY = "pieski_math_records_v1";
-
-  function loadPlayer(){
-    const raw = localStorage.getItem(PLAYER_KEY);
-    const found = PLAYERS.find(p => p.id === raw);
-    return found ? found.id : PLAYERS[0].id;
-  }
-  function savePlayer(id){
-    try{ localStorage.setItem(PLAYER_KEY, id); } catch {}
-  }
-
-  function loadLearnProgress(){
-    try{
-      const raw = JSON.parse(localStorage.getItem(LEARN_PROGRESS_KEY) || "{}");
-      const unlocked = Number.isFinite(raw.unlocked) ? clamp(raw.unlocked, 0, LEARN_LEVELS.length-1) : 0;
-      const selected = Number.isFinite(raw.selected) ? clamp(raw.selected, 0, unlocked) : 0;
-      return { unlocked, selected };
-    } catch {
-      return { unlocked: 0, selected: 0 };
-    }
-  }
-  function saveLearnProgress(progress){
-    try{ localStorage.setItem(LEARN_PROGRESS_KEY, JSON.stringify(progress)); } catch {}
-  }
-
-  function defaultRecords(){
-    return {
-      beginner: {},
-      master: {},
-      learn: Object.fromEntries(LEARN_LEVELS.map(lvl => [lvl.id, {}])),
-    };
-  }
-  function loadRecords(){
-    try{
-      const raw = localStorage.getItem(RECORDS_KEY);
-      if (!raw) return defaultRecords();
-      const obj = JSON.parse(raw);
-      const base = defaultRecords();
-      return {
-        beginner: obj.beginner || base.beginner,
-        master: obj.master || base.master,
-        learn: Object.fromEntries(LEARN_LEVELS.map(lvl => [lvl.id, (obj.learn && obj.learn[lvl.id]) || {}])),
-      };
-    } catch {
-      return defaultRecords();
-    }
-  }
-  function saveRecords(obj){
-    try{ localStorage.setItem(RECORDS_KEY, JSON.stringify(obj)); } catch {}
-  }
-  function shouldReplaceRecord(current, run){
-    if (!current) return true;
-    if (run.pct > current.pct + 0.01) return true;
-    if (Math.abs(run.pct - current.pct) <= 0.01 && run.correct > current.correct) return true;
-    return false;
-  }
-
-  // ===== LAST10 STATS STORAGE =====
-  const STATS_KEY = "pieski_math_last10_v3";
-  function loadStats(){
-    try{
-      const raw = localStorage.getItem(STATS_KEY);
-      if (!raw) return { beginner:[], learn:[], master:[] };
-      const obj = JSON.parse(raw);
-      return {
-        beginner: Array.isArray(obj.beginner) ? obj.beginner : [],
-        learn:    Array.isArray(obj.learn)    ? obj.learn    : [],
-        master:   Array.isArray(obj.master)   ? obj.master   : [],
-      };
-    } catch {
-      return { beginner:[], learn:[], master:[] };
-    }
-  }
-  function saveStats(obj){
-    try{ localStorage.setItem(STATS_KEY, JSON.stringify(obj)); } catch {}
-  }
-  function pushRun(mode, run){
-    const all = loadStats();
-    const arr = all[mode] || [];
-    arr.unshift(run);
-    all[mode] = arr.slice(0, 10);
-    saveStats(all);
-    return all[mode];
-  }
-
-  let rankTab = "beginner";
-  function setActiveTab(mode){
-    [...tabs.querySelectorAll(".tab")].forEach(t => t.classList.toggle("active", t.dataset.mode === mode));
-  }
-
-  function renderLast10(mode){
-    const all = loadStats();
-    const arr = all[mode] || [];
-    rankBody.innerHTML = "";
-
-    if (!arr.length){
-      rankSummary.textContent = "Brak danych – zagraj, żeby zobaczyć ranking 🙂";
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td class="rank">—</td><td style="color:var(--muted)">—</td><td class="scorecol" style="color:var(--muted)">—</td><td class="scorecol" style="color:var(--muted)">—</td><td class="scorecol" style="color:var(--muted)">—</td>`;
-      rankBody.appendChild(tr);
-      return;
-    }
-
-    const newest = arr[0];
-    const sorted = arr
-      .map((r,i)=>({i, pct:r.pct, ts:r.ts}))
-      .sort((a,b)=> b.pct - a.pct || b.ts - a.ts);
-
-    const newestRank = sorted.findIndex(x=>x.i===0) + 1;
-    const total = arr.length;
-
-    let arrow = "•";
-    if (arr.length >= 2){
-      const prev = arr[1];
-      if (newest.pct > prev.pct + 0.01) arrow = "▲";
-      else if (newest.pct < prev.pct - 0.01) arrow = "▼";
-      else arrow = "•";
-    }
-
-    rankSummary.innerHTML = `
-      <span><strong>${MODES[mode].label}</strong> — dobrze: <strong>${pctStr(newest.pct)}</strong> • źle: <strong>${pctStr(100-newest.pct)}</strong></span>
-      <span>${arrow} masz <strong>${newestRank}</strong> miejsce na <strong>${total}</strong></span>
-    `;
-
-    const ranksByIndex = new Map(sorted.map((x, pos)=>[x.i, pos+1]));
-    arr.forEach((r, i) => {
-      const rk = ranksByIndex.get(i) || "-";
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td class="rank">${rk}</td>
-        <td>${fmtDate(r.ts)}</td>
-        <td class="scorecol">${pctStr(r.pct)}</td>
-        <td class="scorecol">${pctStr(100-r.pct)}</td>
-        <td class="scorecol">${r.correct}/${r.total}</td>
-      `;
-      rankBody.appendChild(tr);
-    });
-  }
-
-  function getPlayerById(id){
-    return PLAYERS.find(p => p.id === id) || PLAYERS[0];
-  }
-
-  let selectedPlayerId = loadPlayer();
-  let learnProgress = loadLearnProgress();
-
-  function renderPlayerButtons(){
-    playerRow.innerHTML = "";
-    PLAYERS.forEach(player => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "choiceBtn";
-      btn.dataset.player = player.id;
-      btn.innerHTML = `${player.emoji} ${player.label}`;
-      if (player.id === selectedPlayerId) btn.classList.add("active");
-      btn.addEventListener("click", () => setPlayer(player.id));
-      playerRow.appendChild(btn);
-    });
-  }
-
-  function renderLevelButtons(){
-    levelRow.innerHTML = "";
-    LEARN_LEVELS.forEach((level, index) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "choiceBtn";
-      btn.dataset.level = String(index);
-      btn.innerHTML = `${level.label} <span class="miniBadge">${level.reward}</span>`;
-      const locked = index > learnProgress.unlocked;
-      if (locked) btn.classList.add("locked");
-      if (index === learnProgress.selected) btn.classList.add("active");
-      btn.addEventListener("click", () => {
-        if (locked) return;
-        learnProgress = { ...learnProgress, selected: index };
-        saveLearnProgress(learnProgress);
-        renderLevelButtons();
-      });
-      levelRow.appendChild(btn);
-    });
-
-    const unlockedLabel = LEARN_LEVELS[learnProgress.unlocked]?.label || LEARN_LEVELS[0].label;
-    levelHint.textContent = `Odblokowano do poziomu: ${unlockedLabel}.`;
-  }
-
-  function updateRecord(mode, playerId, run, levelId){
-    const all = loadRecords();
-    if (mode === "learn"){
-      const bucket = all.learn[levelId] || {};
-      const current = bucket[playerId];
-      if (shouldReplaceRecord(current, run)){
-        bucket[playerId] = run;
-        all.learn[levelId] = bucket;
-      }
-    } else {
-      const bucket = all[mode] || {};
-      const current = bucket[playerId];
-      if (shouldReplaceRecord(current, run)){
-        bucket[playerId] = run;
-        all[mode] = bucket;
-      }
-    }
-    saveRecords(all);
-  }
-
-  function renderRecords(playerId){
-    const all = loadRecords();
-    const player = getPlayerById(playerId);
-    recordPlayer.textContent = `${player.emoji} ${player.label}`;
-    recordBody.innerHTML = "";
-
-    const rows = [
-      { label: MODES.beginner.label, record: all.beginner[playerId] },
-      ...LEARN_LEVELS.map(level => ({
-        label: `${MODES.learn.label} — ${level.label}`,
-        record: (all.learn[level.id] || {})[playerId],
-      })),
-      { label: MODES.master.label, record: all.master[playerId] },
-    ];
-
-    rows.forEach(row => {
-      const tr = document.createElement("tr");
-      if (!row.record){
-        tr.innerHTML = `<td>${row.label}</td><td class="scorecol" style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td><td class="scorecol" style="color:var(--muted)">—</td>`;
-      } else {
-        tr.innerHTML = `
-          <td>${row.label}</td>
-          <td class="scorecol">${pctStr(row.record.pct)}</td>
-          <td>${fmtDate(row.record.ts)}</td>
-          <td class="scorecol">${row.record.correct}/${row.record.total}</td>
-        `;
-      }
-      recordBody.appendChild(tr);
-    });
-  }
-
-  function setPlayer(id){
-    selectedPlayerId = id;
-    state.playerId = id;
-    savePlayer(id);
-    renderPlayerButtons();
-    renderRecords(selectedPlayerId);
-    updatePlayerPill();
-  }
-
-  function updatePlayerPill(){
-    const player = getPlayerById(selectedPlayerId);
-    playerPill.textContent = `Gracz: ${player.emoji} ${player.label}`;
-  }
-
-  // ===== AUDIO + FIREWORKS (simple) =====
-  let audioCtx = null;
-  let audioReady = false;
-
-  function ensureAudio(){
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
-    audioReady = true;
-  }
-  function beep(freq=880, dur=0.08){
-    if (!audioReady) return;
-    const t0 = audioCtx.currentTime;
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type = "square";
-    o.frequency.setValueAtTime(freq, t0);
-    g.gain.setValueAtTime(0.0001, t0);
-    g.gain.exponentialRampToValueAtTime(0.06, t0 + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-    o.connect(g).connect(audioCtx.destination);
-    o.start(t0);
-    o.stop(t0 + dur + 0.02);
-  }
-
-  let fxRunning=false, particles=[], lastT=0, burstInterval=null;
-  function resizeFx(){
-    const rect = fx.getBoundingClientRect();
-    fx.width = Math.max(1, Math.floor(rect.width * devicePixelRatio));
-    fx.height = Math.max(1, Math.floor(rect.height * devicePixelRatio));
-  }
-  function spawnBurst(){
-    const w=fx.width, h=fx.height;
-    const cx=randInt(Math.floor(w*0.2), Math.floor(w*0.8));
-    const cy=randInt(Math.floor(h*0.10), Math.floor(h*0.45));
-    const colors=["#58a6ff","#2ea043","#f85149","#a371f7","#d29922","#c9d1d9"];
-    const col=colors[randInt(0,colors.length-1)];
-    const count=randInt(24,44);
-    for(let i=0;i<count;i++){
-      const ang=Math.random()*Math.PI*2;
-      const spd=randInt(160,380);
-      particles.push({x:cx,y:cy,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,life:randInt(650,1100),age:0,col});
-    }
-  }
-  function startFireworks(){
-    resizeFx();
-    fx.classList.add("show");
-    fxRunning=true;
-    particles=[];
-    lastT=performance.now();
-    spawnBurst(); spawnBurst();
-    if (burstInterval) clearInterval(burstInterval);
-    burstInterval=setInterval(()=>{ if(fxRunning) spawnBurst(); }, 650);
-    requestAnimationFrame(fxLoop);
-  }
-  function stopFireworks(){
-    fxRunning=false;
-    fx.classList.remove("show");
-    particles=[];
-    if (burstInterval){ clearInterval(burstInterval); burstInterval=null; }
-  }
-  function fxLoop(now){
-    if (!fxRunning) return;
-    const dt=clamp(now-lastT,0,40);
-    lastT=now;
-
-    const w=fx.width, h=fx.height;
-    fxCtx.save();
-    fxCtx.globalAlpha=0.18;
-    fxCtx.fillStyle="#0d1117";
-    fxCtx.fillRect(0,0,w,h);
-    fxCtx.restore();
-
-    const g=860;
-    const next=[];
-    for(const p of particles){
-      p.age+=dt;
-      if (p.age>=p.life) continue;
-      const t=dt/1000;
-      p.vx*=0.98;
-      p.vy=p.vy*0.98 + g*t;
-      p.x+=p.vx*t;
-      p.y+=p.vy*t;
-
-      const alpha=1-(p.age/p.life);
-      fxCtx.save();
-      fxCtx.globalAlpha=alpha;
-      fxCtx.fillStyle=p.col;
-      const r=3*devicePixelRatio;
-      fxCtx.beginPath();
-      fxCtx.arc(p.x,p.y,r,0,Math.PI*2);
-      fxCtx.fill();
-      fxCtx.restore();
-
-      next.push(p);
-    }
-    particles=next;
-    requestAnimationFrame(fxLoop);
-  }
-  window.addEventListener("resize", ()=>{ if (fxRunning) resizeFx(); });
-
-  // ===== UI HELPERS =====
-  function setStateLabel(s){ pillState.textContent = s; }
-
-  function showToast(msg){
-    toast.textContent = msg;
-    toast.classList.add("show");
-    setTimeout(()=>toast.classList.remove("show"), 900);
-  }
-  function showEq(eq){
-    eqText.textContent = eq;
-    eqBig.classList.add("show");
-  }
-  function hideEq(){ eqBig.classList.remove("show"); }
-
-  function showWinMsg(nick){
-    const lower=(nick||"").trim().toLowerCase();
-    const msg=(lower==="sonia"||lower==="soniu") ? "Brawo Soniu, idzie Ci coraz lepiej!" : `Brawo ${nick}, idzie Ci coraz lepiej!`;
-    winMsgTitle.textContent = msg;
-    winMsg.classList.add("show");
-  }
-  function hideWin(){ winMsg.classList.remove("show"); }
-
-  function showReward(title, line){
-    rewardTitle.textContent = title;
-    rewardLine.textContent = line;
-    rewardMsg.classList.add("show");
-  }
-  function hideReward(){ rewardMsg.classList.remove("show"); }
-
-  function showSad(){ sadDog.classList.add("show"); }
-  function hideSad(){ sadDog.classList.remove("show"); }
-
-  function setProgress(pct){
-    progressBar.style.width = `${pct}%`;
-    progressText.textContent = `${Math.round(pct)}%`;
-  }
-
-  function renderLives(l){
-    livesEl.innerHTML = "";
-    for(let i=0;i<3;i++){
-      const d=document.createElement("span");
-      d.className="heart"+(i<l?" on":"");
-      livesEl.appendChild(d);
-    }
-  }
-
-  function showSelect(){
-    selectScreen.style.display="";
-    playScreen.classList.remove("show");
-    playScreen.setAttribute("aria-hidden","true");
-    unfreezeScroll();
-    document.body.style.overflow="";
-
-    stopTimer();
-    stopFireworks();
-    hideWin();
-    hideReward();
-    hideSad();
-    hideEq();
-    hideTyping();
-
-    setStateLabel("Stan: WYBIERZ TRYB");
-    setActiveTab(rankTab);
-    renderLast10(rankTab);
-    renderRecords(selectedPlayerId);
-    renderLevelButtons();
-  }
-
-  function showPlay(){
-    selectScreen.style.display="none";
-    playScreen.classList.add("show");
-    playScreen.setAttribute("aria-hidden","false");
-    freezeScroll();
-    document.body.style.overflow="hidden";
-    setStateLabel("Stan: GRA");
-  }
-
-  // ===== TIMER (beginner only) =====
-  let timerId=null, deadline=0;
-  function stopTimer(){
-    if (timerId){ clearInterval(timerId); timerId=null; }
-  }
-  function setNoTimer(){
-    timeLabel.textContent="Bez czasu";
-    timeLeftEl.textContent="∞";
-    timerBar.style.width="0%";
-  }
-  function startTimer(ms){
-    stopTimer();
-    deadline = performance.now() + ms;
-    timerBar.style.width="100%";
-    timeLeftEl.textContent=`${Math.ceil(ms/1000)}s`;
-
-    timerId=setInterval(()=>{
-      const left = Math.max(0, deadline - performance.now());
-      const pct = (left/ms)*100;
-      timerBar.style.width = `${pct}%`;
-      timeLeftEl.textContent = `${Math.ceil(left/1000)}s`;
-
-      if (left<=0){
-        stopTimer();
-        if (state.mode==="beginner") onBeginnerWrong(true);
-      }
-    }, 80);
-  }
-
-  // ===== SOUND FX =====
-  function showCorrect(){ beep(880); }
-  function showWrong(){ beep(240,0.10); }
-
-  // ===== QUESTION GENERATORS =====
-  function makeQ(a,b,meta){
-    const key = `${a}x${b}`;
-    return { a,b, correct:a*b, meta, key };
-  }
-
-  function genBeginner(n){
-    const qs=[];
-    for(let i=0;i<n;i++){
-      const block=Math.min(RAMP5.length-1, Math.floor(i/5));
-      const max=RAMP5[block];
-      const a=randInt(0,max);
-      const b=randInt(0,max);
-      qs.push(makeQ(a,b,`×0–${max}`));
-    }
-    return qs;
-  }
-
-  function genMaster(n){
-    const qs=[];
-    for(let i=0;i<n;i++){
-      const a=randInt(0,10);
-      const b=randInt(0,10);
-      qs.push(makeQ(a,b,"×0–10"));
-    }
-    return qs;
-  }
-
-  function buildCandidates(max){
-    const c=[];
-    for(let a=0;a<=max;a++){
-      for(let b=a;b<=max;b++) c.push(`${a}x${b}`);
-    }
-    return c;
-  }
-  const LEARN_CANDS = {};
-  for (let m=0;m<=10;m++) LEARN_CANDS[m]=buildCandidates(m);
-
-  function parseKey(k){
-    const [a,b]=k.split("x").map(Number);
-    return {a,b};
-  }
-
-  function nextLearnBaseQuestion(L){
-    const asked = L.asked;
-    const block = Math.min(L.levelRamp.length-1, Math.floor(asked/10));
-    const max = L.levelRamp[block];
-
-    const candidates = LEARN_CANDS[max];
-    let minUse=Infinity;
-    for(const k of candidates){
-      const u=L.usage.get(k)||0;
-      if (u<minUse) minUse=u;
-    }
-    let pool=candidates.filter(k => (L.usage.get(k)||0)===minUse && !L.recent.includes(k));
-    if (!pool.length) pool=candidates.filter(k => (L.usage.get(k)||0)===minUse);
-    if (!pool.length) pool=candidates.slice();
-
-    const pick=pool[randInt(0,pool.length-1)];
-    L.usage.set(pick,(L.usage.get(pick)||0)+1);
-    L.recent.push(pick);
-    while(L.recent.length>10) L.recent.shift();
-
-    const {a:aa,b:bb}=parseKey(pick);
-    const swap=Math.random()<0.5;
-    let a=swap?bb:aa, b=swap?aa:bb;
-
-    // reduce 0 early
-    if (block<=1 && (a===0 || b===0) && Math.random()<0.7){
-      a = randInt(1,max); b = randInt(1,max);
-    }
-
-    return makeQ(a,b,`×0–${max}`);
-  }
-
-  function makeChoiceOptions(correct){
-    const opts=new Set([correct]);
-    const near=clamp(correct+randInt(-10,10),0,100);
-    if (near!==correct) opts.add(near);
-    while(opts.size<3){
-      const r=Math.random()<0.65 ? clamp(correct+randInt(-20,20),0,100) : randInt(0,100);
-      opts.add(r);
-    }
-    return shuffle([...opts]);
-  }
-
-  // ===== KEYPAD =====
-  function buildKeypad(){
-    keypad.innerHTML="";
-    const keys=["1","2","3","4","5","6","7","8","9","C","0","OK"];
-    for(const k of keys){
-      const b=document.createElement("button");
-      b.type="button";
-      b.className="key";
-      b.textContent=k;
-      if (k==="OK") b.classList.add("ok");
-      if (k==="C") b.classList.add("del");
-      b.addEventListener("click", ()=>onKey(k));
-      keypad.appendChild(b);
-    }
-  }
-
-  // ===== STATE =====
-  const state={
-    mode:"beginner",
-    nick:"Sonia",
-    playerId: selectedPlayerId,
-    locked:false,
-
-    correct:0,
-    wrong:0,
-    lives:3,
-
-    qs:[],
-    i:0,
-
-    typed:"",
-    triesLeft:3,
-
-    // learn
-    learn:{
-      phase:"main", // main|test
-      asked:0,      // how many questions in main have been ASKED so far (0..99)
-      levelIndex: learnProgress.selected,
-      levelId: LEARN_LEVELS[learnProgress.selected].id,
-      levelLabel: LEARN_LEVELS[learnProgress.selected].label,
-      levelReward: LEARN_LEVELS[learnProgress.selected].reward,
-      levelTotal: LEARN_LEVELS[learnProgress.selected].total,
-      levelRamp: LEARN_LEVELS[learnProgress.selected].ramp,
-      repeatCooldown:0, // >>> NEW: cooldown for repeats
-      scheduled:[], // {q, remaining}
-      ready:[],     // queue of q
-      usage:new Map(),
-      recent:[],
-      wrongFreq:new Map(), // key -> {q,count,lastTs}
-      mainCorrectFirst:0,
-      mainWrongFirst:0,
-      test:[],
-      testIndex:0,
-      testCorrect:0,
-      testWrong:0
-    },
-    currentQ:null,
-    currentIsRepeat:false
-  };
-
-  function setTyped(str){
-    state.typed=str;
-    typeDisplay.textContent=str.length?str:"0";
-  }
-
-  function showTyping(label){
-    typeWrap.classList.add("show");
-    answersWrap.style.display="none";
-    triesPill.textContent=label;
-    const hint = state.mode === "learn" ? `Wpisuj wynik • ${state.learn.levelLabel}` : "Wpisuj wynik";
-    hintStat.innerHTML=`<span>${hint}</span>`;
-  }
-  function hideTyping(){
-    typeWrap.classList.remove("show");
-    answersWrap.style.display="grid";
-  }
-
-  function lockAll(v){
-    state.locked=v;
-    [...answersWrap.querySelectorAll("button")].forEach(b=>b.disabled=v);
-    [...keypad.querySelectorAll("button")].forEach(b=>b.disabled=v);
-  }
-
-  // ===== LEARN: scheduling + picking repeats =====
-  function noteWrongFrequency(L, q){
-    const cur=L.wrongFreq.get(q.key);
-    if (!cur) L.wrongFreq.set(q.key,{q,count:1,lastTs:Date.now()});
-    else { cur.count+=1; cur.lastTs=Date.now(); }
-  }
-
-  function scheduleOrResetRepeat(L, q){
-    // if already ready, keep it
-    if (L.ready.find(x=>x.key===q.key)) return;
-    // if already scheduled, reset to 4
-    const it = L.scheduled.find(x=>x.q.key===q.key);
-    if (it){ it.remaining = LEARN_REPEAT_AFTER; return; }
-    L.scheduled.push({q, remaining: LEARN_REPEAT_AFTER});
-  }
-
-  function advanceLearnQueues(L){
-    for (const item of L.scheduled) item.remaining -= 1;
-    const still=[];
-    for (const item of L.scheduled){
-      if (item.remaining<=0) L.ready.push(item.q);
-      else still.push(item);
-    }
-    L.scheduled = still;
-
-    // >>> NEW: decrement cooldown once per asked question
-    if (L.repeatCooldown > 0) L.repeatCooldown -= 1;
-  }
-
-  function pickBestRepeat(L){
-    // pick repeat with highest wrong count (tie by lastTs)
-    let bestIdx = 0;
-    let bestCount = -1;
-    let bestTs = -1;
-
-    for (let i=0;i<L.ready.length;i++){
-      const q=L.ready[i];
-      const rec=L.wrongFreq.get(q.key);
-      const c=rec ? rec.count : 1;
-      const t=rec ? rec.lastTs : 0;
-
-      if (c>bestCount || (c===bestCount && t>bestTs)){
-        bestCount=c;
-        bestTs=t;
-        bestIdx=i;
-      }
-    }
-    return L.ready.splice(bestIdx,1)[0];
-  }
-
-  // Decide next learn question source, enforcing cooldown
-  function nextLearnQuestion(L){
-    // if repeats are ready and cooldown is zero -> serve repeat
-    if (L.ready.length && L.repeatCooldown <= 0){
-      const q = pickBestRepeat(L);
-      // set cooldown randomly 2–3
-      L.repeatCooldown = randInt(LEARN_REPEAT_COOLDOWN_MIN, LEARN_REPEAT_COOLDOWN_MAX);
-      return { q, isRepeat:true };
-    }
-    // else serve base
-    return { q: nextLearnBaseQuestion(L), isRepeat:false };
-  }
-
-  function buildLearnTest(L){
-    const entries=[...L.wrongFreq.values()];
-    entries.sort((a,b)=> b.count - a.count || b.lastTs - a.lastTs);
-    const picked=entries.slice(0,LEARN_TEST_COUNT).map(e=>e.q);
-
-    while(picked.length<LEARN_TEST_COUNT){
-      // fill with random from full 0..10
-      const a=randInt(0,10), b=randInt(0,10);
-      const q=makeQ(a,b,"test");
-      if (!picked.find(x=>x.key===q.key)) picked.push(q);
-    }
-    L.test=picked;
-    L.testIndex=0;
-    L.phase="test";
-  }
-
-  // ===== RENDER: Beginner =====
-  function renderBeginner(){
-    const q=state.qs[state.i];
-    state.currentQ=q;
-
-    modeBadge.textContent=q.meta;
-    questionText.textContent=`${q.a} × ${q.b} = ?`;
-
-    const options=makeChoiceOptions(q.correct);
-    answersWrap.innerHTML="";
-    options.forEach(v=>{
-      const b=document.createElement("button");
-      b.className="ansBtn";
-      b.textContent=String(v);
-      b.addEventListener("click", ()=>onBeginnerAnswer(v));
-      answersWrap.appendChild(b);
-    });
-    hideTyping();
-    lockAll(false);
-
-    qNum.textContent=String(state.i+1);
-    scoreEl.textContent=String(state.correct);
-    setProgress((state.i / MODES.beginner.total)*100);
-
-    startTimer(MODES.beginner.seconds*1000);
-  }
-
-  function onBeginnerAnswer(val){
-    if (state.locked) return;
-    lockAll(true);
-    stopTimer();
-    const q=state.currentQ;
-
-    if (val===q.correct){
-      state.correct+=1;
-      scoreEl.textContent=String(state.correct);
-      showToast("Dobrze! ✅");
-      beep(880);
-      setTimeout(()=>nextBeginner(), 350);
-    } else {
-      onBeginnerWrong(false);
-    }
-  }
-
-  function onBeginnerWrong(timedOut){
-    const q=state.currentQ;
-    state.wrong+=1;
-    state.lives-=1;
-    renderLives(state.lives);
-
-    showToast(timedOut ? "Czas minął! ❌" : `Źle… poprawnie: ${q.correct}`);
-    setTimeout(()=>{
-      if (state.lives<=0) endLose();
-      else nextBeginner();
-    }, 500);
-  }
-
-  function nextBeginner(){
-    state.i+=1;
-    if (state.i>=MODES.beginner.total){ endWin(); return; }
-    renderBeginner();
-  }
-
-  // ===== RENDER: Master =====
-  function renderMaster(){
-    const q=state.qs[state.i];
-    state.currentQ=q;
-
-    modeBadge.textContent=`Próby: ${state.triesLeft}/3`;
-    questionText.textContent=`${q.a} × ${q.b} = ?`;
-
-    answersWrap.innerHTML="";
-    showTyping(`Próby: ${state.triesLeft}/3`);
-    setTyped("");
-    lockAll(false);
-
-    qNum.textContent=String(state.i+1);
-    scoreEl.textContent=String(state.correct);
-    setProgress((state.i / MODES.master.total)*100);
-    setNoTimer();
-  }
-
-  function submitMaster(){
-    const q=state.currentQ;
-    const val=Number(state.typed||"0");
-
-    if (val===q.correct){
-      state.correct+=1;
-      showToast("Dobrze! ✅");
-      beep(880);
-      lockAll(true);
-      setTimeout(()=>nextMaster(), 350);
-      return;
-    }
-
-    state.triesLeft-=1;
-    if (state.triesLeft>0){
-      modeBadge.textContent=`Próby: ${state.triesLeft}/3`;
-      showToast(`Nie… spróbuj jeszcze raz (${state.triesLeft})`);
-      setTyped("");
-      beep(240,0.10);
-      return;
-    }
-
-    state.wrong+=1;
-    state.lives-=1;
-    renderLives(state.lives);
-    showToast(`Zabrakło prób… poprawnie: ${q.correct}`);
-    lockAll(true);
-
-    setTimeout(()=>{
-      if (state.lives<=0) endLose();
-      else nextMaster();
-    }, 650);
-  }
-
-  function nextMaster(){
-    state.i+=1;
-    if (state.i>=MODES.master.total){ endWin(); return; }
-    state.triesLeft=3;
-    renderMaster();
-  }
-
-  // ===== RENDER: Learn =====
-  function renderLearn(){
-    const L=state.learn;
-    const totalAll = L.levelTotal + LEARN_TEST_COUNT;
-
-    if (L.phase==="main"){
-      // stop when asked reaches 100
-      if (L.asked >= L.levelTotal){
-        buildLearnTest(L);
-        return renderLearn();
-      }
-
-      // choose question with cooldown-limited repeats
-      const pick = nextLearnQuestion(L);
-      state.currentQ = pick.q;
-      state.currentIsRepeat = pick.isRepeat;
-
-      modeBadge.textContent = pick.isRepeat ? `Powtórka • ${L.levelLabel}` : `${pick.q.meta} • ${L.levelLabel}`;
-      questionText.textContent = `${pick.q.a} × ${pick.q.b} = ?`;
-
-      answersWrap.innerHTML="";
-      showTyping("Bez czasu");
-      setTyped("");
-      lockAll(false);
-
-      // HUD
-      L.asked += 1; // count asked question
-      qNum.textContent = String(L.asked);
-      qTotal.textContent = String(totalAll);
-      setProgress((L.asked / totalAll) * 100);
-      scoreEl.textContent = String(L.mainCorrectFirst + L.testCorrect);
-      setNoTimer();
-
-      return;
-    }
-
-    // test phase
-    const q=L.test[L.testIndex];
-    state.currentQ=q;
-
-    modeBadge.textContent = `TEST ${L.testIndex+1}/10`;
-    questionText.textContent = `${q.a} × ${q.b} = ?`;
-
-    const options=makeChoiceOptions(q.correct);
-    answersWrap.innerHTML="";
-    options.forEach(v=>{
-      const b=document.createElement("button");
-      b.className="ansBtn";
-      b.textContent=String(v);
-      b.addEventListener("click", ()=>onLearnTestAnswer(v));
-      answersWrap.appendChild(b);
-    });
-
-    hideTyping();
-    lockAll(false);
-
-    qNum.textContent = String(L.levelTotal + (L.testIndex+1));
-    qTotal.textContent = String(totalAll);
-    setProgress(((L.levelTotal + L.testIndex) / totalAll) * 100);
-    scoreEl.textContent = String(L.mainCorrectFirst + L.testCorrect);
-    setNoTimer();
-  }
-
-  function submitLearn(){
-    const L=state.learn;
-    const q=state.currentQ;
-    const val=Number(state.typed||"0");
-    const isRepeat = state.currentIsRepeat;
-
-    if (val===q.correct){
-      if (!isRepeat) L.mainCorrectFirst += 1;
-      showToast("Dobrze! ✅");
-      beep(880);
-      lockAll(true);
-      setTyped("");
-
-      // after each asked question: tick schedules + cooldown
-      advanceLearnQueues(L);
-
-      setTimeout(()=>{
-        lockAll(false);
-        renderLearn();
-      }, 260);
-      return;
-    }
-
-    // wrong: count only first-try wrong for non-repeat (as in your scoring)
-    if (!isRepeat) L.mainWrongFirst += 1;
-    noteWrongFrequency(L, q);
-    scheduleOrResetRepeat(L, q);
-
-    lockAll(true);
-    setTyped("");
-    showEq(`${q.a}×${q.b}=${q.correct}`);
-    showToast("Poprawny wynik pokazany 🙂");
-
-    // after each asked question: tick schedules + cooldown
-    advanceLearnQueues(L);
-
-    setTimeout(()=>{
-      hideEq();
-      lockAll(false);
-      renderLearn();
-    }, LEARN_SHOW_EQ_MS);
-  }
-
-  function onLearnTestAnswer(v){
-    const L=state.learn;
-    if (state.locked) return;
-    lockAll(true);
-
-    const q=state.currentQ;
-    if (v===q.correct){
-      L.testCorrect += 1;
-      showToast("Dobrze! ✅");
-      beep(880);
-    } else {
-      L.testWrong += 1;
-      showToast(`Źle… poprawnie: ${q.correct}`);
-      beep(240,0.10);
-    }
-
-    setTimeout(()=>{
-      L.testIndex += 1;
-      if (L.testIndex>=LEARN_TEST_COUNT){
-        endLearnLevel();
-      } else {
-        lockAll(false);
-        renderLearn();
-      }
-    }, 420);
-  }
-
-  // ===== KEYPAD =====
-  function onKey(k){
-    if (state.locked) return;
-    if (state.mode!=="learn" && state.mode!=="master") return;
-
-    ensureAudio();
-
-    if (k==="C"){ setTyped(""); beep(300,0.05); return; }
-    if (k==="OK"){
-      if (state.mode==="master") return submitMaster();
-      return submitLearn();
-    }
-    if (state.typed.length>=3) return;
-    setTyped(state.typed + k);
-    beep(520,0.03);
-  }
-
-  window.addEventListener("keydown", (e)=>{
-    if (!playScreen.classList.contains("show")) return;
-    if (state.mode!=="learn" && state.mode!=="master") return;
-    if (e.key>="0" && e.key<="9") onKey(e.key);
-    if (e.key==="Enter") onKey("OK");
-    if (e.key==="Backspace" || e.key==="Delete") onKey("C");
-  });
-
-  // ===== START / END =====
-  function computeRunStats(){
-    let correct=state.correct, wrong=state.wrong, total=Math.max(1, correct+wrong);
-
-    if (state.mode==="learn"){
-      const L=state.learn;
-      correct = L.mainCorrectFirst + L.testCorrect;
-      wrong   = L.mainWrongFirst + L.testWrong;
-      total   = Math.max(1, correct + wrong);
-    }
-    const pct = (correct/total)*100;
-    return {correct, wrong, total, pct};
-  }
-
-  function endLearnLevel(){
-    stopTimer();
-    lockAll(true);
-    hideSad(); hideEq(); hideWin();
-
-    const stats=computeRunStats();
-    const run = { ts: Date.now(), pct: stats.pct, correct: stats.correct, total: stats.total };
-    pushRun(state.mode, run);
-    updateRecord("learn", state.playerId, run, state.learn.levelId);
-
-    rankTab="learn";
-    setActiveTab(rankTab);
-    renderLast10(rankTab);
-    renderRecords(selectedPlayerId);
-
-    const nextIndex = Math.min(learnProgress.unlocked + 1, LEARN_LEVELS.length - 1);
-    if (state.learn.levelIndex >= learnProgress.unlocked && nextIndex > learnProgress.unlocked){
-      learnProgress = { unlocked: nextIndex, selected: nextIndex };
-      saveLearnProgress(learnProgress);
-    }
-    renderLevelButtons();
-
-    showReward(`Poziom ${state.learn.levelLabel} ukończony!`, `Nagroda: ${state.learn.levelReward}`);
-    showToast("Super! 🎉");
-
-    setTimeout(()=>{
-      hideReward();
-      showSelect();
-    }, 3500);
-  }
-
-  function endLose(){
-    stopTimer();
-    lockAll(true);
-    hideWin(); hideEq(); hideReward();
-    showSad();
-    showToast("O nie… 😢");
-
-    const stats=computeRunStats();
-    const run = { ts: Date.now(), pct: stats.pct, correct: stats.correct, total: stats.total };
-    pushRun(state.mode, run);
-    updateRecord(state.mode, state.playerId, run, state.learn.levelId);
-    rankTab=state.mode;
-    setActiveTab(rankTab);
-    renderLast10(rankTab);
-    renderRecords(selectedPlayerId);
-
-    setTimeout(()=>{
-      hideSad();
-      showSelect();
-    }, LOSE_SHOW_MS);
-  }
-
-  function endWin(){
-    stopTimer();
-    lockAll(true);
-    hideSad(); hideEq(); hideReward();
-
-    const stats=computeRunStats();
-    const run = { ts: Date.now(), pct: stats.pct, correct: stats.correct, total: stats.total };
-    pushRun(state.mode, run);
-    updateRecord(state.mode, state.playerId, run, state.learn.levelId);
-    rankTab=state.mode;
-    setActiveTab(rankTab);
-    renderLast10(rankTab);
-    renderRecords(selectedPlayerId);
-
-    showWinMsg(state.nick);
-    showToast("Wygrana! 🎉");
-    startFireworks();
-    startFanfare10s();
-
-    setTimeout(()=>{
-      stopFireworks();
-      stopFanfare10s();
-      hideWin();
-      showSelect();
-    }, WIN_CELEBRATION_MS);
-  }
-
-  // fanfare
-  let fanfareTimer=null;
-  function startFanfare10s(){
-    if (!audioReady) return;
-    const motif=()=>{
-      const notes=[523.25,659.25,783.99,1046.5,1318.5,1567.98];
-      notes.forEach((f,i)=>setTimeout(()=>beep(f,0.10), i*160));
-    };
-    motif();
-    fanfareTimer=setInterval(motif, 2000);
-  }
-  function stopFanfare10s(){
-    if (fanfareTimer){ clearInterval(fanfareTimer); fanfareTimer=null; }
-  }
-
-  function startMode(mode){
-    ensureAudio();
-    state.nick = sanitizeNick(nickEl.value);
-    nickEl.value = state.nick;
-    state.playerId = selectedPlayerId;
-
-    resetForMode(mode);
-    showPlay();
-
-    if (mode==="beginner"){
-      state.qs = genBeginner(MODES.beginner.total);
-      state.i = 0;
-      state.correct=0; state.wrong=0; state.lives=3;
-      qTotal.textContent = String(MODES.beginner.total);
-      statLives.classList.remove("hidden");
-      renderLives(state.lives);
-      hintStat.innerHTML="<span>Wybierz odpowiedź</span>";
-      renderBeginner();
-      return;
-    }
-
-    if (mode==="master"){
-      state.qs = genMaster(MODES.master.total);
-      state.i = 0;
-      state.correct=0; state.wrong=0; state.lives=3;
-      state.triesLeft=3;
-      qTotal.textContent = String(MODES.master.total);
-      statLives.classList.remove("hidden");
-      renderLives(state.lives);
-      hintStat.innerHTML="<span>Wpisuj wynik</span>";
-      renderMaster();
-      return;
-    }
-
-    // learn
-    const L=state.learn;
-    const level = LEARN_LEVELS[learnProgress.selected];
-    L.levelIndex = learnProgress.selected;
-    L.levelId = level.id;
-    L.levelLabel = level.label;
-    L.levelReward = level.reward;
-    L.levelTotal = level.total;
-    L.levelRamp = level.ramp;
-    playMode.textContent = `Tryb: ${MODES.learn.label} • ${L.levelLabel}`;
-    L.phase="main";
-    L.asked=0;
-    L.repeatCooldown=0; // >>> IMPORTANT: reset cooldown
-    L.scheduled=[];
-    L.ready=[];
-    L.usage=new Map();
-    L.recent=[];
-    L.wrongFreq=new Map();
-    L.mainCorrectFirst=0;
-    L.mainWrongFirst=0;
-    L.test=[];
-    L.testIndex=0;
-    L.testCorrect=0;
-    L.testWrong=0;
-
-    state.correct=0; state.wrong=0;
-    qTotal.textContent = String(L.levelTotal + LEARN_TEST_COUNT);
-    statLives.classList.add("hidden");
-    livesEl.innerHTML="";
-    hintStat.innerHTML=`<span>Wpisuj wynik • ${L.levelLabel}</span>`;
-    renderLearn();
-  }
-
-  function resetForMode(mode){
-    state.mode=mode;
-    state.locked=false;
-    state.correct=0; state.wrong=0; state.lives=3;
-    state.typed=""; state.triesLeft=3;
-    hideEq(); hideWin(); hideSad(); hideReward();
-    toast.classList.remove("show");
-    scoreEl.textContent="0";
-    qNum.textContent="0";
-    setProgress(0);
-
-    playMode.textContent = `Tryb: ${MODES[mode].label}`;
-    modeBadge.textContent = "—";
-    updatePlayerPill();
-
-    if (MODES[mode].hasTimer){
-      timeLabel.textContent="Czas";
-      timeLeftEl.textContent=`${MODES[mode].seconds}s`;
-      timerBar.style.width="100%";
-    } else {
-      setNoTimer();
-    }
-
-    if (MODES[mode].input==="choice"){
-      hideTyping();
-    } else {
-      showTyping(mode==="master" ? "Próby: 3/3" : "Bez czasu");
-      setTyped("");
-    }
-
-    lockAll(false);
-  }
-
-  // ===== EVENTS =====
-  tileRow.addEventListener("click", (e)=>{
-    const tile=e.target.closest(".tile");
-    if (!tile) return;
-    startMode(tile.dataset.mode);
-  });
-
-  tabs.addEventListener("click", (e)=>{
-    const t=e.target.closest(".tab");
-    if (!t) return;
-    rankTab=t.dataset.mode;
-    setActiveTab(rankTab);
-    renderLast10(rankTab);
-    ensureAudio();
-  });
-
-  quitBtn.addEventListener("click", ()=>{
-    stopTimer();
-    stopFireworks();
-    stopFanfare10s();
-    hideEq(); hideWin(); hideSad(); hideReward();
-    showSelect();
-  });
-
-  window.addEventListener("pointerdown", ()=>{ ensureAudio(); }, { once:true });
-
-  // ===== INIT =====
-  function init(){
-    buildKeypad();
-    setStateLabel("Stan: WYBIERZ TRYB");
-    setActiveTab(rankTab);
-    renderLast10(rankTab);
-    renderPlayerButtons();
-    renderLevelButtons();
-    renderRecords(selectedPlayerId);
-    updatePlayerPill();
-  }
-  init();
-})();
-</script>
-</body>
-</html>
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/index.html b/index.html
+index 893b55203fc2ea1079f68a094e2fee0bf8d468df..7d9d83fc90c83c226f9a3000e60b1a9745b45a87 100644
+--- a/index.html
++++ b/index.html
+@@ -146,88 +146,130 @@
+       border:1px solid rgba(48,54,61,.95);
+       background: rgba(13,17,23,.40);
+       box-shadow: 0 10px 22px rgba(0,0,0,.22);
+       display:flex;
+       align-items:center;
+       justify-content:space-between;
+       gap:10px;
+       min-height: 72px;
+       transition: transform 70ms ease, border-color 120ms ease, background 120ms ease;
+     }
+     .tile:active{ transform: translateY(1px); }
+     .tile:hover{ border-color: rgba(88,166,255,.40); background: rgba(13,17,23,.52); }
+     .tile .left{ display:grid; gap:2px; }
+     .tile strong{ font-size: 15px; font-weight: 950; letter-spacing:.2px; }
+     .tile span{ font-size: 12px; color: var(--muted); }
+     .chip{
+       font-size: 12px;
+       font-weight: 950;
+       padding: 7px 10px;
+       border-radius: 999px;
+       border:1px solid rgba(163,113,247,.45);
+       background: rgba(163,113,247,.12);
+       white-space:nowrap;
+     }
+ 
+-    .subCard{
+-      border:1px solid rgba(48,54,61,.95);
+-      border-radius: var(--r16);
+-      background: rgba(13,17,23,.35);
+-      padding: 14px;
+-      display:grid;
+-      gap:10px;
+-    }
++    .subCard{
++      border:1px solid rgba(48,54,61,.95);
++      border-radius: var(--r16);
++      background: rgba(13,17,23,.35);
++      padding: 14px;
++      display:grid;
++      gap:10px;
++    }
++    .tiny{
++      font-size: 12px;
++      color: var(--muted);
++    }
+     .subHead{
+       display:flex;
+       align-items:center;
+       justify-content:space-between;
+       flex-wrap:wrap;
+       gap:10px;
+     }
+-    .tabs{
+-      display:flex;
+-      gap:8px;
+-      flex-wrap:wrap;
+-      justify-content:flex-end;
+-    }
++    .tabs{
++      display:flex;
++      gap:8px;
++      flex-wrap:wrap;
++      justify-content:flex-end;
++    }
+     .tab{
+       cursor:pointer;
+       user-select:none;
+       touch-action: manipulation;
+       padding: 9px 10px;
+       border-radius: 999px;
+       border:1px solid rgba(48,54,61,.95);
+       background: rgba(22,27,34,.55);
+       color: var(--text);
+       font-size: 12px;
+       font-weight: 950;
+     }
+-    .tab.active{
+-      border-color: rgba(163,113,247,.55);
+-      box-shadow: 0 0 0 2px rgba(163,113,247,.14);
+-      background: rgba(163,113,247,.10);
+-    }
++    .tab.active{
++      border-color: rgba(163,113,247,.55);
++      box-shadow: 0 0 0 2px rgba(163,113,247,.14);
++      background: rgba(163,113,247,.10);
++    }
++    .choiceRow{
++      display:flex;
++      gap:8px;
++      flex-wrap:wrap;
++      align-items:center;
++    }
++    .choiceBtn{
++      cursor:pointer;
++      user-select:none;
++      touch-action: manipulation;
++      padding: 9px 12px;
++      border-radius: 999px;
++      border:1px solid rgba(48,54,61,.95);
++      background: rgba(22,27,34,.55);
++      color: var(--text);
++      font-size: 12px;
++      font-weight: 950;
++      display:inline-flex;
++      align-items:center;
++      gap:6px;
++    }
++    .choiceBtn.active{
++      border-color: rgba(46,160,67,.55);
++      box-shadow: 0 0 0 2px rgba(46,160,67,.16);
++      background: rgba(46,160,67,.12);
++    }
++    .choiceBtn.locked{
++      opacity:.45;
++      cursor:not-allowed;
++    }
++    .choiceBtn .miniBadge{
++      padding:4px 8px;
++      border-radius:999px;
++      border:1px solid rgba(88,166,255,.35);
++      background: rgba(88,166,255,.10);
++      font-size:10px;
++      font-weight:900;
++    }
+ 
+     .summaryLine{
+       padding:10px 12px;
+       border-radius: 14px;
+       border:1px solid rgba(88,166,255,.28);
+       background: rgba(88,166,255,.08);
+       color: var(--text);
+       font-size: 13px;
+       display:flex;
+       flex-wrap:wrap;
+       gap:10px;
+       align-items:center;
+       justify-content:space-between;
+     }
+ 
+     .tableWrap{
+       overflow:auto;
+       -webkit-overflow-scrolling: touch;
+       border-radius: 14px;
+       border:1px solid rgba(48,54,61,.95);
+       background: rgba(22,27,34,.45);
+     }
+     table{ width:100%; border-collapse: collapse; font-size: 13px; }
+     th, td{ padding: 10px 10px; border-bottom:1px solid rgba(48,54,61,.75); text-align:left; }
+     th{
+@@ -529,65 +571,80 @@
+       font-size: 14px;
+       text-align:center;
+       opacity:0;
+       transform: translateY(8px);
+       transition: opacity 140ms ease, transform 140ms ease;
+       max-width: 820px;
+     }
+     .toast.show{ opacity:1; transform: translateY(0); }
+ 
+     .eqBig{
+       display:none;
+       padding: 16px 18px;
+       border-radius: 18px;
+       border:1px solid rgba(88,166,255,.55);
+       background: rgba(88,166,255,.10);
+       text-align:center;
+     }
+     .eqBig.show{ display:block; }
+     .eqBig .t{
+       margin:0;
+       font-size: clamp(34px, 6vw, 72px);
+       font-weight: 990;
+       letter-spacing:.3px;
+     }
+ 
+-    .winMsg{
+-      display:none;
+-      text-align:center;
+-      padding: 18px 18px;
+-      border-radius: 18px;
+-      border:1px solid rgba(46,160,67,.55);
+-      background: rgba(46,160,67,.10);
+-      max-width: 860px;
+-    }
++    .winMsg{
++      display:none;
++      text-align:center;
++      padding: 18px 18px;
++      border-radius: 18px;
++      border:1px solid rgba(46,160,67,.55);
++      background: rgba(46,160,67,.10);
++      max-width: 860px;
++    }
+     .winMsg.show{ display:block; }
+-    .winMsg .h{
+-      font-size: clamp(34px, 6.2vw, 68px);
+-      font-weight: 990;
+-      margin:0;
+-    }
++    .winMsg .h{
++      font-size: clamp(34px, 6.2vw, 68px);
++      font-weight: 990;
++      margin:0;
++    }
++    .rewardMsg{
++      display:none;
++      text-align:center;
++      padding: 16px 16px;
++      border-radius: 18px;
++      border:1px solid rgba(88,166,255,.55);
++      background: rgba(88,166,255,.10);
++      max-width: 860px;
++    }
++    .rewardMsg.show{ display:block; }
++    .rewardMsg .h{
++      font-size: clamp(26px, 4.4vw, 42px);
++      font-weight: 990;
++      margin:0;
++    }
+ 
+     .sadDog{
+       width:220px; height:180px;
+       position:relative;
+       display:none;
+       transform: scale(3);
+       transform-origin: center;
+     }
+     .sadDog.show{ display:block; }
+     .sadDog .head{
+       position:absolute; left:50%; top:46px;
+       width:140px; height:120px;
+       transform: translateX(-50%);
+       border-radius: 34px;
+       background: rgba(46,160,67,.10);
+       border:2px solid rgba(46,160,67,.55);
+     }
+     .sadDog .eye{
+       position:absolute; top:88px;
+       width:10px; height:10px;
+       border-radius:999px;
+       background: rgba(201,209,217,.92);
+       border:1px solid rgba(48,54,61,.95);
+     }
+     .sadDog .eye.e1{ left:74px; }
+@@ -604,255 +661,319 @@
+       position:absolute;
+       inset:0;
+       width:100%;
+       height:100%;
+       pointer-events:none;
+       display:none;
+     }
+     #fx.show{ display:block; }
+   </style>
+ </head>
+ 
+ <body>
+   <div class="safe" id="selectScreen">
+     <div class="app">
+       <div class="topbar">
+         <div class="pill" id="pillState">Stan: WYBIERZ TRYB</div>
+         <div class="pill">iPad: Safari → Udostępnij → <strong>Dodaj do ekranu początkowego</strong></div>
+       </div>
+ 
+       <div class="card">
+         <div class="title">
+           <h1>Matematyka Piesków dla Sonii</h1>
+           <p>Tryby: Początkujący / Nauka / Mistrz</p>
+         </div>
+ 
+-        <div class="select">
+-          <div class="row">
+-            <label class="nick">
+-              Nick:
+-              <input id="nick" type="text" maxlength="16" placeholder="Sonia" value="Sonia" autocomplete="off" />
+-            </label>
+-            <div class="pill" style="margin:0;">Start: kliknij kafelek trybu</div>
+-          </div>
+-
+-          <div class="tileRow" id="tileRow">
+-            <div class="tile" data-mode="beginner">
+-              <div class="left">
+-                <strong>Początkujący</strong>
++        <div class="select">
++          <div class="row">
++            <label class="nick">
++              Nick:
++              <input id="nick" type="text" maxlength="16" placeholder="Sonia" value="Sonia" autocomplete="off" />
++            </label>
++            <div class="pill" style="margin:0;">Start: kliknij kafelek trybu</div>
++          </div>
++          <div class="row">
++            <div class="tiny">Wybierz gracza:</div>
++            <div class="choiceRow" id="playerRow" role="group" aria-label="Wybór gracza"></div>
++          </div>
++
++          <div class="tileRow" id="tileRow">
++            <div class="tile" data-mode="beginner">
++              <div class="left">
++                <strong>Początkujący</strong>
+                 <span>30 pytań • 15 s • trudność rośnie</span>
+               </div>
+               <div class="chip">15 s</div>
+             </div>
+-            <div class="tile" data-mode="learn">
+-              <div class="left">
+-                <strong>Nauka</strong>
+-                <span>100 pytań • powtórki • test 10 pytań</span>
+-              </div>
+-              <div class="chip">✎</div>
+-            </div>
++            <div class="tile" data-mode="learn">
++              <div class="left">
++                <strong>Nauka</strong>
++                <span>Poziomy do odblokowania • nagrody • test 10 pytań</span>
++              </div>
++              <div class="chip">✎</div>
++            </div>
+             <div class="tile" data-mode="master">
+               <div class="left">
+                 <strong>Mistrz</strong>
+                 <span>30 pytań • wpisywanie • 3 próby</span>
+               </div>
+               <div class="chip">∞</div>
+-            </div>
+-          </div>
+-
+-          <div class="subCard">
+-            <div class="subHead">
+-              <div>
+-                <div style="font-weight:950;letter-spacing:.2px;">Skuteczność (ostatnie 10 gier)</div>
+-                <div class="tiny">Procent poprawnych + miejsce wśród ostatnich prób.</div>
++            </div>
++          </div>
++
++          <div class="subCard">
++            <div class="subHead">
++              <div>
++                <div style="font-weight:950;letter-spacing:.2px;">Poziomy nauki</div>
++                <div class="tiny">Odblokowuj poziomy i odbieraj nagrody.</div>
++              </div>
++            </div>
++            <div class="choiceRow" id="levelRow" role="group" aria-label="Poziomy nauki"></div>
++            <div class="tiny" id="levelHint">Drewniany jest dostępny od razu.</div>
++          </div>
++
++          <div class="subCard">
++            <div class="subHead">
++              <div>
++                <div style="font-weight:950;letter-spacing:.2px;">Skuteczność (ostatnie 10 gier)</div>
++                <div class="tiny">Procent poprawnych + miejsce wśród ostatnich prób.</div>
+               </div>
+               <div class="tabs" id="tabs">
+                 <div class="tab active" data-mode="beginner">Początkujący</div>
+                 <div class="tab" data-mode="learn">Nauka</div>
+                 <div class="tab" data-mode="master">Mistrz</div>
+               </div>
+             </div>
+ 
+             <div class="summaryLine" id="rankSummary">Brak danych – zagraj, żeby zobaczyć ranking 🙂</div>
+ 
+             <div class="tableWrap">
+               <table aria-label="Ranking">
+                 <thead>
+                   <tr>
+                     <th class="rank">#</th>
+                     <th>Data</th>
+                     <th class="scorecol">Dobrze</th>
+                     <th class="scorecol">Źle</th>
+                     <th class="scorecol">Wynik</th>
+                   </tr>
+                 </thead>
+                 <tbody id="rankBody"></tbody>
+-              </table>
+-            </div>
+-          </div>
+-        </div>
+-      </div>
+-    </div>
+-  </div>
++              </table>
++            </div>
++          </div>
++
++          <div class="subCard">
++            <div class="subHead">
++              <div>
++                <div style="font-weight:950;letter-spacing:.2px;">Rekordy gracza</div>
++                <div class="tiny" id="recordPlayer">—</div>
++              </div>
++            </div>
++            <div class="tableWrap">
++              <table aria-label="Rekordy">
++                <thead>
++                  <tr>
++                    <th>Tryb / Poziom</th>
++                    <th class="scorecol">Rekord</th>
++                    <th>Data</th>
++                    <th class="scorecol">Wynik</th>
++                  </tr>
++                </thead>
++                <tbody id="recordBody"></tbody>
++              </table>
++            </div>
++          </div>
++        </div>
++      </div>
++    </div>
++  </div>
+ 
+   <div class="fullscreen" id="playScreen" aria-hidden="true">
+     <canvas id="fx"></canvas>
+ 
+     <div class="playSafe">
+       <div class="playCard">
+-        <div class="playPad">
+-          <div class="playTop">
+-            <div class="pill" id="playMode">Tryb: —</div>
+-            <button class="miniBtn" id="quitBtn">Zakończ</button>
+-          </div>
++        <div class="playPad">
++          <div class="playTop">
++            <div class="pill" id="playMode">Tryb: —</div>
++            <div class="pill" id="playerPill">Gracz: —</div>
++            <button class="miniBtn" id="quitBtn">Zakończ</button>
++          </div>
+ 
+           <div class="hud">
+             <div class="bars">
+               <div>
+                 <div class="barlabel"><span>Postęp</span><span id="progressText">0%</span></div>
+                 <div class="progress"><div id="progressBar"></div></div>
+               </div>
+               <div>
+                 <div class="barlabel"><span id="timeLabel">Czas</span><span><strong id="timeLeft">—</strong></span></div>
+                 <div class="progress timer"><div id="timerBar"></div></div>
+               </div>
+             </div>
+ 
+             <div class="stats">
+               <div class="stat">Pytanie: <strong id="qNum">0</strong>/<span id="qTotal">0</span></div>
+               <div class="stat">Dobrze: <strong id="score">0</strong></div>
+               <div class="stat" id="statLives">Życia: <span class="lives" id="lives"></span></div>
+               <div class="stat" id="hintStat"><span>—</span></div>
+             </div>
+           </div>
+ 
+           <div class="questionWrap" id="qWrap">
+             <div class="questionLine">
+               <div class="big" id="questionText">—</div>
+               <div class="badge" id="modeBadge">—</div>
+             </div>
+             <div class="answers" id="answers"></div>
+           </div>
+ 
+           <div class="typeWrap" id="typeWrap" aria-hidden="true">
+             <div class="typeTop">
+               <div class="typeDisplay" id="typeDisplay">0</div>
+               <div class="tries" id="triesPill">—</div>
+             </div>
+             <div class="keypad" id="keypad"></div>
+           </div>
+         </div>
+ 
+         <div class="stage">
+           <div class="stageInner">
+             <div class="toast" id="toast">—</div>
+ 
+             <div class="eqBig" id="eqBig" aria-hidden="true">
+               <p class="t" id="eqText">8×4=32</p>
+               <div style="color:var(--muted);font-size:13px;margin-top:8px;">Powtórka wróci wkrótce 🙂</div>
+             </div>
+ 
+-            <div class="winMsg" id="winMsg" aria-hidden="true">
+-              <p class="h" id="winMsgTitle">Brawo!</p>
+-              <div style="color:var(--muted);font-size:14px;margin-top:8px;">Fajerwerki i fanfary przez chwilę ✨</div>
+-            </div>
++            <div class="winMsg" id="winMsg" aria-hidden="true">
++              <p class="h" id="winMsgTitle">Brawo!</p>
++              <div style="color:var(--muted);font-size:14px;margin-top:8px;">Fajerwerki i fanfary przez chwilę ✨</div>
++            </div>
++
++            <div class="rewardMsg" id="rewardMsg" aria-hidden="true">
++              <p class="h" id="rewardTitle">Nagroda zdobyta!</p>
++              <div class="tiny" id="rewardLine">—</div>
++            </div>
+ 
+             <div class="sadDog" id="sadDog" aria-hidden="true">
+               <div class="head"></div>
+               <div class="eye e1"></div>
+               <div class="eye e2"></div>
+               <div class="mouth"></div>
+             </div>
+           </div>
+         </div>
+ 
+       </div>
+     </div>
+   </div>
+ 
+ <script>
+ (() => {
+   "use strict";
+ 
+   // ===== SETTINGS =====
+   const WIN_CELEBRATION_MS = 10_000;
+   const LOSE_SHOW_MS = 5_000;
+ 
+-  const MODES = {
+-    beginner: { label: "Początkujący", total: 30, hasTimer: true,  seconds: 15, input: "choice", lives: true },
+-    learn:    { label: "Nauka",        total: 100, hasTimer: false, seconds: 0,  input: "type",   lives: false },
+-    master:   { label: "Mistrz",       total: 30, hasTimer: false, seconds: 0,  input: "type",   lives: true  },
+-  };
++  const MODES = {
++    beginner: { label: "Początkujący", total: 30, hasTimer: true,  seconds: 15, input: "choice", lives: true },
++    learn:    { label: "Nauka",        total: 0,   hasTimer: false, seconds: 0,  input: "type",   lives: false },
++    master:   { label: "Mistrz",       total: 30, hasTimer: false, seconds: 0,  input: "type",   lives: true  },
++  };
++
++  const PLAYERS = [
++    { id: "dog", label: "Piesek", emoji: "🐶" },
++    { id: "cat", label: "Kotek", emoji: "🐱" },
++    { id: "kangaroo", label: "Kangurek", emoji: "🦘" },
++  ];
++
++  const LEARN_LEVELS = [
++    { id: "wood", label: "Drewniany", reward: "Naklejka: 🪵", total: 30, ramp: [3,4,5] },
++    { id: "stone", label: "Kamienny", reward: "Odznaka: 🪨", total: 30, ramp: [6,7,8] },
++    { id: "iron", label: "Żelazny", reward: "Tarcza: 🛡️", total: 40, ramp: [9,10,10,10] },
++  ];
+ 
+   const RAMP5  = [4,5,6,7,8,10];           // beginner blocks of 5
+   const RAMP10 = [3,4,5,6,7,8,9,10,10,10]; // learn blocks of 10
+ 
+   const LEARN_REPEAT_AFTER = 4;
+   const LEARN_SHOW_EQ_MS = 3000;
+   const LEARN_TEST_COUNT = 10;
+ 
+   // >>> DOPRACOWANIE: limit powtórek (max 1 powtórka co 2–3 pytania)
+   const LEARN_REPEAT_COOLDOWN_MIN = 2;
+   const LEARN_REPEAT_COOLDOWN_MAX = 3;
+ 
+-  // ===== DOM =====
+-  const pillState = document.getElementById("pillState");
+-  const nickEl = document.getElementById("nick");
+-  const tileRow = document.getElementById("tileRow");
+-  const tabs = document.getElementById("tabs");
+-  const rankSummary = document.getElementById("rankSummary");
+-  const rankBody = document.getElementById("rankBody");
++  // ===== DOM =====
++  const pillState = document.getElementById("pillState");
++  const nickEl = document.getElementById("nick");
++  const playerRow = document.getElementById("playerRow");
++  const levelRow = document.getElementById("levelRow");
++  const levelHint = document.getElementById("levelHint");
++  const tileRow = document.getElementById("tileRow");
++  const tabs = document.getElementById("tabs");
++  const rankSummary = document.getElementById("rankSummary");
++  const rankBody = document.getElementById("rankBody");
++  const recordPlayer = document.getElementById("recordPlayer");
++  const recordBody = document.getElementById("recordBody");
+ 
+   const selectScreen = document.getElementById("selectScreen");
+   const playScreen = document.getElementById("playScreen");
+ 
+-  const playMode = document.getElementById("playMode");
+-  const quitBtn = document.getElementById("quitBtn");
++  const playMode = document.getElementById("playMode");
++  const playerPill = document.getElementById("playerPill");
++  const quitBtn = document.getElementById("quitBtn");
+ 
+   const qNum = document.getElementById("qNum");
+   const qTotal = document.getElementById("qTotal");
+   const scoreEl = document.getElementById("score");
+   const livesEl = document.getElementById("lives");
+ 
+   const questionText = document.getElementById("questionText");
+   const answersWrap = document.getElementById("answers");
+ 
+   const progressBar = document.getElementById("progressBar");
+   const progressText = document.getElementById("progressText");
+   const timerBar = document.getElementById("timerBar");
+   const timeLeftEl = document.getElementById("timeLeft");
+   const timeLabel = document.getElementById("timeLabel");
+ 
+   const statLives = document.getElementById("statLives");
+   const hintStat = document.getElementById("hintStat");
+   const modeBadge = document.getElementById("modeBadge");
+ 
+   const toast = document.getElementById("toast");
+   const eqBig = document.getElementById("eqBig");
+   const eqText = document.getElementById("eqText");
+-  const winMsg = document.getElementById("winMsg");
+-  const winMsgTitle = document.getElementById("winMsgTitle");
++  const winMsg = document.getElementById("winMsg");
++  const winMsgTitle = document.getElementById("winMsgTitle");
++  const rewardMsg = document.getElementById("rewardMsg");
++  const rewardTitle = document.getElementById("rewardTitle");
++  const rewardLine = document.getElementById("rewardLine");
+   const sadDog = document.getElementById("sadDog");
+ 
+   const typeWrap = document.getElementById("typeWrap");
+   const typeDisplay = document.getElementById("typeDisplay");
+   const triesPill = document.getElementById("triesPill");
+   const keypad = document.getElementById("keypad");
+ 
+   const fx = document.getElementById("fx");
+   const fxCtx = fx.getContext("2d");
+ 
+   // ===== iPad viewport polish =====
+   function setVhVar(){
+     document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
+   }
+   setVhVar();
+   window.addEventListener("resize", setVhVar);
+   window.addEventListener("orientationchange", () => setTimeout(setVhVar, 200));
+ 
+   // iOS scroll lock
+   let scrollY = 0;
+   function freezeScroll(){
+     scrollY = window.scrollY || 0;
+     document.body.style.position = "fixed";
+     document.body.style.top = `-${scrollY}px`;
+     document.body.style.left = "0";
+@@ -866,140 +987,310 @@
+     document.body.style.left = "";
+     document.body.style.right = "";
+     document.body.style.width = "";
+     const y = top ? -parseInt(top, 10) : 0;
+     window.scrollTo(0, y);
+   }
+ 
+   // ===== UTILS =====
+   const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+   const randInt = (a,b)=> (Math.random()*(b-a+1)|0)+a;
+ 
+   function shuffle(arr){
+     for(let i=arr.length-1;i>0;i--){
+       const j = (Math.random()*(i+1))|0;
+       [arr[i],arr[j]] = [arr[j],arr[i]];
+     }
+     return arr;
+   }
+ 
+   function sanitizeNick(s){
+     s = (s || "").trim();
+     if (!s) return "Sonia";
+     return s.replace(/\s+/g, " ").slice(0, 16);
+   }
+ 
+-  function fmtDate(ts){
+-    const d = new Date(ts);
+-    const yy = d.getFullYear();
+-    const mm = String(d.getMonth()+1).padStart(2,"0");
+-    const dd = String(d.getDate()).padStart(2,"0");
+-    return `${yy}-${mm}-${dd}`;
+-  }
+-  function pctStr(p){ return `${Math.round(p)}%`; }
+-
+-  // ===== LAST10 STATS STORAGE =====
+-  const STATS_KEY = "pieski_math_last10_v3";
++  function fmtDate(ts){
++    const d = new Date(ts);
++    const yy = d.getFullYear();
++    const mm = String(d.getMonth()+1).padStart(2,"0");
++    const dd = String(d.getDate()).padStart(2,"0");
++    return `${yy}-${mm}-${dd}`;
++  }
++  function pctStr(p){ return `${Math.round(p)}%`; }
++
++  // ===== PLAYER + LEVEL STORAGE =====
++  const PLAYER_KEY = "pieski_math_player_v1";
++  const LEARN_PROGRESS_KEY = "pieski_math_learn_progress_v1";
++  const RECORDS_KEY = "pieski_math_records_v1";
++
++  function loadPlayer(){
++    const raw = localStorage.getItem(PLAYER_KEY);
++    const found = PLAYERS.find(p => p.id === raw);
++    return found ? found.id : PLAYERS[0].id;
++  }
++  function savePlayer(id){
++    try{ localStorage.setItem(PLAYER_KEY, id); } catch {}
++  }
++
++  function loadLearnProgress(){
++    try{
++      const raw = JSON.parse(localStorage.getItem(LEARN_PROGRESS_KEY) || "{}");
++      const unlocked = Number.isFinite(raw.unlocked) ? clamp(raw.unlocked, 0, LEARN_LEVELS.length-1) : 0;
++      const selected = Number.isFinite(raw.selected) ? clamp(raw.selected, 0, unlocked) : 0;
++      return { unlocked, selected };
++    } catch {
++      return { unlocked: 0, selected: 0 };
++    }
++  }
++  function saveLearnProgress(progress){
++    try{ localStorage.setItem(LEARN_PROGRESS_KEY, JSON.stringify(progress)); } catch {}
++  }
++
++  function defaultRecords(){
++    return {
++      beginner: {},
++      master: {},
++      learn: Object.fromEntries(LEARN_LEVELS.map(lvl => [lvl.id, {}])),
++    };
++  }
++  function loadRecords(){
++    try{
++      const raw = localStorage.getItem(RECORDS_KEY);
++      if (!raw) return defaultRecords();
++      const obj = JSON.parse(raw);
++      const base = defaultRecords();
++      return {
++        beginner: obj.beginner || base.beginner,
++        master: obj.master || base.master,
++        learn: Object.fromEntries(LEARN_LEVELS.map(lvl => [lvl.id, (obj.learn && obj.learn[lvl.id]) || {}])),
++      };
++    } catch {
++      return defaultRecords();
++    }
++  }
++  function saveRecords(obj){
++    try{ localStorage.setItem(RECORDS_KEY, JSON.stringify(obj)); } catch {}
++  }
++  function shouldReplaceRecord(current, run){
++    if (!current) return true;
++    if (run.pct > current.pct + 0.01) return true;
++    if (Math.abs(run.pct - current.pct) <= 0.01 && run.correct > current.correct) return true;
++    return false;
++  }
++
++  // ===== LAST10 STATS STORAGE =====
++  const STATS_KEY = "pieski_math_last10_v3";
+   function loadStats(){
+     try{
+       const raw = localStorage.getItem(STATS_KEY);
+       if (!raw) return { beginner:[], learn:[], master:[] };
+       const obj = JSON.parse(raw);
+       return {
+         beginner: Array.isArray(obj.beginner) ? obj.beginner : [],
+         learn:    Array.isArray(obj.learn)    ? obj.learn    : [],
+         master:   Array.isArray(obj.master)   ? obj.master   : [],
+       };
+     } catch {
+       return { beginner:[], learn:[], master:[] };
+     }
+   }
+   function saveStats(obj){
+     try{ localStorage.setItem(STATS_KEY, JSON.stringify(obj)); } catch {}
+   }
+   function pushRun(mode, run){
+     const all = loadStats();
+     const arr = all[mode] || [];
+     arr.unshift(run);
+     all[mode] = arr.slice(0, 10);
+     saveStats(all);
+     return all[mode];
+   }
+ 
+   let rankTab = "beginner";
+   function setActiveTab(mode){
+     [...tabs.querySelectorAll(".tab")].forEach(t => t.classList.toggle("active", t.dataset.mode === mode));
+   }
+ 
+-  function renderLast10(mode){
+-    const all = loadStats();
+-    const arr = all[mode] || [];
+-    rankBody.innerHTML = "";
++  function renderLast10(mode){
++    const all = loadStats();
++    const arr = all[mode] || [];
++    rankBody.innerHTML = "";
+ 
+     if (!arr.length){
+       rankSummary.textContent = "Brak danych – zagraj, żeby zobaczyć ranking 🙂";
+       const tr = document.createElement("tr");
+       tr.innerHTML = `<td class="rank">—</td><td style="color:var(--muted)">—</td><td class="scorecol" style="color:var(--muted)">—</td><td class="scorecol" style="color:var(--muted)">—</td><td class="scorecol" style="color:var(--muted)">—</td>`;
+       rankBody.appendChild(tr);
+       return;
+     }
+ 
+     const newest = arr[0];
+     const sorted = arr
+       .map((r,i)=>({i, pct:r.pct, ts:r.ts}))
+       .sort((a,b)=> b.pct - a.pct || b.ts - a.ts);
+ 
+     const newestRank = sorted.findIndex(x=>x.i===0) + 1;
+     const total = arr.length;
+ 
+     let arrow = "•";
+     if (arr.length >= 2){
+       const prev = arr[1];
+       if (newest.pct > prev.pct + 0.01) arrow = "▲";
+       else if (newest.pct < prev.pct - 0.01) arrow = "▼";
+       else arrow = "•";
+     }
+ 
+     rankSummary.innerHTML = `
+       <span><strong>${MODES[mode].label}</strong> — dobrze: <strong>${pctStr(newest.pct)}</strong> • źle: <strong>${pctStr(100-newest.pct)}</strong></span>
+       <span>${arrow} masz <strong>${newestRank}</strong> miejsce na <strong>${total}</strong></span>
+     `;
+ 
+     const ranksByIndex = new Map(sorted.map((x, pos)=>[x.i, pos+1]));
+     arr.forEach((r, i) => {
+       const rk = ranksByIndex.get(i) || "-";
+       const tr = document.createElement("tr");
+       tr.innerHTML = `
+         <td class="rank">${rk}</td>
+         <td>${fmtDate(r.ts)}</td>
+         <td class="scorecol">${pctStr(r.pct)}</td>
+         <td class="scorecol">${pctStr(100-r.pct)}</td>
+         <td class="scorecol">${r.correct}/${r.total}</td>
+       `;
+-      rankBody.appendChild(tr);
+-    });
+-  }
++      rankBody.appendChild(tr);
++    });
++  }
++
++  function getPlayerById(id){
++    return PLAYERS.find(p => p.id === id) || PLAYERS[0];
++  }
++
++  let selectedPlayerId = loadPlayer();
++  let learnProgress = loadLearnProgress();
++
++  function renderPlayerButtons(){
++    playerRow.innerHTML = "";
++    PLAYERS.forEach(player => {
++      const btn = document.createElement("button");
++      btn.type = "button";
++      btn.className = "choiceBtn";
++      btn.dataset.player = player.id;
++      btn.innerHTML = `${player.emoji} ${player.label}`;
++      if (player.id === selectedPlayerId) btn.classList.add("active");
++      btn.addEventListener("click", () => setPlayer(player.id));
++      playerRow.appendChild(btn);
++    });
++  }
++
++  function renderLevelButtons(){
++    levelRow.innerHTML = "";
++    LEARN_LEVELS.forEach((level, index) => {
++      const btn = document.createElement("button");
++      btn.type = "button";
++      btn.className = "choiceBtn";
++      btn.dataset.level = String(index);
++      btn.innerHTML = `${level.label} <span class="miniBadge">${level.reward}</span>`;
++      const locked = index > learnProgress.unlocked;
++      if (locked) btn.classList.add("locked");
++      if (index === learnProgress.selected) btn.classList.add("active");
++      btn.addEventListener("click", () => {
++        if (locked) return;
++        learnProgress = { ...learnProgress, selected: index };
++        saveLearnProgress(learnProgress);
++        renderLevelButtons();
++      });
++      levelRow.appendChild(btn);
++    });
++
++    const unlockedLabel = LEARN_LEVELS[learnProgress.unlocked]?.label || LEARN_LEVELS[0].label;
++    levelHint.textContent = `Odblokowano do poziomu: ${unlockedLabel}.`;
++  }
++
++  function updateRecord(mode, playerId, run, levelId){
++    const all = loadRecords();
++    if (mode === "learn"){
++      const bucket = all.learn[levelId] || {};
++      const current = bucket[playerId];
++      if (shouldReplaceRecord(current, run)){
++        bucket[playerId] = run;
++        all.learn[levelId] = bucket;
++      }
++    } else {
++      const bucket = all[mode] || {};
++      const current = bucket[playerId];
++      if (shouldReplaceRecord(current, run)){
++        bucket[playerId] = run;
++        all[mode] = bucket;
++      }
++    }
++    saveRecords(all);
++  }
++
++  function renderRecords(playerId){
++    const all = loadRecords();
++    const player = getPlayerById(playerId);
++    recordPlayer.textContent = `${player.emoji} ${player.label}`;
++    recordBody.innerHTML = "";
++
++    const rows = [
++      { label: MODES.beginner.label, record: all.beginner[playerId] },
++      ...LEARN_LEVELS.map(level => ({
++        label: `${MODES.learn.label} — ${level.label}`,
++        record: (all.learn[level.id] || {})[playerId],
++      })),
++      { label: MODES.master.label, record: all.master[playerId] },
++    ];
++
++    rows.forEach(row => {
++      const tr = document.createElement("tr");
++      if (!row.record){
++        tr.innerHTML = `<td>${row.label}</td><td class="scorecol" style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td><td class="scorecol" style="color:var(--muted)">—</td>`;
++      } else {
++        tr.innerHTML = `
++          <td>${row.label}</td>
++          <td class="scorecol">${pctStr(row.record.pct)}</td>
++          <td>${fmtDate(row.record.ts)}</td>
++          <td class="scorecol">${row.record.correct}/${row.record.total}</td>
++        `;
++      }
++      recordBody.appendChild(tr);
++    });
++  }
++
++  function setPlayer(id){
++    selectedPlayerId = id;
++    state.playerId = id;
++    savePlayer(id);
++    renderPlayerButtons();
++    renderRecords(selectedPlayerId);
++    updatePlayerPill();
++  }
++
++  function updatePlayerPill(){
++    const player = getPlayerById(selectedPlayerId);
++    playerPill.textContent = `Gracz: ${player.emoji} ${player.label}`;
++  }
+ 
+   // ===== AUDIO + FIREWORKS (simple) =====
+   let audioCtx = null;
+   let audioReady = false;
+ 
+   function ensureAudio(){
+     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+     if (audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+     audioReady = true;
+   }
+   function beep(freq=880, dur=0.08){
+     if (!audioReady) return;
+     const t0 = audioCtx.currentTime;
+     const o = audioCtx.createOscillator();
+     const g = audioCtx.createGain();
+     o.type = "square";
+     o.frequency.setValueAtTime(freq, t0);
+     g.gain.setValueAtTime(0.0001, t0);
+     g.gain.exponentialRampToValueAtTime(0.06, t0 + 0.01);
+     g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+     o.connect(g).connect(audioCtx.destination);
+     o.start(t0);
+     o.stop(t0 + dur + 0.02);
+   }
+ 
+@@ -1071,93 +1362,103 @@
+       fxCtx.arc(p.x,p.y,r,0,Math.PI*2);
+       fxCtx.fill();
+       fxCtx.restore();
+ 
+       next.push(p);
+     }
+     particles=next;
+     requestAnimationFrame(fxLoop);
+   }
+   window.addEventListener("resize", ()=>{ if (fxRunning) resizeFx(); });
+ 
+   // ===== UI HELPERS =====
+   function setStateLabel(s){ pillState.textContent = s; }
+ 
+   function showToast(msg){
+     toast.textContent = msg;
+     toast.classList.add("show");
+     setTimeout(()=>toast.classList.remove("show"), 900);
+   }
+   function showEq(eq){
+     eqText.textContent = eq;
+     eqBig.classList.add("show");
+   }
+   function hideEq(){ eqBig.classList.remove("show"); }
+ 
+-  function showWinMsg(nick){
+-    const lower=(nick||"").trim().toLowerCase();
+-    const msg=(lower==="sonia"||lower==="soniu") ? "Brawo Soniu, idzie Ci coraz lepiej!" : `Brawo ${nick}, idzie Ci coraz lepiej!`;
+-    winMsgTitle.textContent = msg;
+-    winMsg.classList.add("show");
+-  }
+-  function hideWin(){ winMsg.classList.remove("show"); }
++  function showWinMsg(nick){
++    const lower=(nick||"").trim().toLowerCase();
++    const msg=(lower==="sonia"||lower==="soniu") ? "Brawo Soniu, idzie Ci coraz lepiej!" : `Brawo ${nick}, idzie Ci coraz lepiej!`;
++    winMsgTitle.textContent = msg;
++    winMsg.classList.add("show");
++  }
++  function hideWin(){ winMsg.classList.remove("show"); }
++
++  function showReward(title, line){
++    rewardTitle.textContent = title;
++    rewardLine.textContent = line;
++    rewardMsg.classList.add("show");
++  }
++  function hideReward(){ rewardMsg.classList.remove("show"); }
+ 
+   function showSad(){ sadDog.classList.add("show"); }
+   function hideSad(){ sadDog.classList.remove("show"); }
+ 
+   function setProgress(pct){
+     progressBar.style.width = `${pct}%`;
+     progressText.textContent = `${Math.round(pct)}%`;
+   }
+ 
+   function renderLives(l){
+     livesEl.innerHTML = "";
+     for(let i=0;i<3;i++){
+       const d=document.createElement("span");
+       d.className="heart"+(i<l?" on":"");
+       livesEl.appendChild(d);
+     }
+   }
+ 
+-  function showSelect(){
+-    selectScreen.style.display="";
+-    playScreen.classList.remove("show");
+-    playScreen.setAttribute("aria-hidden","true");
+-    unfreezeScroll();
+-    document.body.style.overflow="";
+-
+-    stopTimer();
+-    stopFireworks();
+-    hideWin();
+-    hideSad();
+-    hideEq();
+-    hideTyping();
+-
+-    setStateLabel("Stan: WYBIERZ TRYB");
+-    setActiveTab(rankTab);
+-    renderLast10(rankTab);
+-  }
++  function showSelect(){
++    selectScreen.style.display="";
++    playScreen.classList.remove("show");
++    playScreen.setAttribute("aria-hidden","true");
++    unfreezeScroll();
++    document.body.style.overflow="";
++
++    stopTimer();
++    stopFireworks();
++    hideWin();
++    hideReward();
++    hideSad();
++    hideEq();
++    hideTyping();
++
++    setStateLabel("Stan: WYBIERZ TRYB");
++    setActiveTab(rankTab);
++    renderLast10(rankTab);
++    renderRecords(selectedPlayerId);
++    renderLevelButtons();
++  }
+ 
+   function showPlay(){
+     selectScreen.style.display="none";
+     playScreen.classList.add("show");
+     playScreen.setAttribute("aria-hidden","false");
+     freezeScroll();
+     document.body.style.overflow="hidden";
+     setStateLabel("Stan: GRA");
+   }
+ 
+   // ===== TIMER (beginner only) =====
+   let timerId=null, deadline=0;
+   function stopTimer(){
+     if (timerId){ clearInterval(timerId); timerId=null; }
+   }
+   function startTimer(ms){
+     stopTimer();
+     deadline=performance.now()+ms;
+     updateTimer(ms);
+     timerId=setInterval(()=>{
+       if (state.locked) return;
+       updateTimer(ms);
+       if (deadline-performance.now()<=0){
+         state.locked=true;
+         stopTimer();
+@@ -1211,54 +1512,54 @@
+     }
+     shuffle(all);
+     return all.slice(0,total).map(p=>{
+       const swap=Math.random()<0.5;
+       const a=swap?p.b:p.a, b=swap?p.a:p.b;
+       return makeQ(a,b,"2–10");
+     });
+   }
+ 
+   // learn base generation (even distribution)
+   function buildCandidates(max){
+     const c=[];
+     for(let a=0;a<=max;a++){
+       for(let b=a;b<=max;b++) c.push(`${a}x${b}`);
+     }
+     return c;
+   }
+   const LEARN_CANDS = {};
+   for (let m=0;m<=10;m++) LEARN_CANDS[m]=buildCandidates(m);
+ 
+   function parseKey(k){
+     const [a,b]=k.split("x").map(Number);
+     return {a,b};
+   }
+ 
+-  function nextLearnBaseQuestion(L){
+-    const asked = L.asked;
+-    const block = Math.min(RAMP10.length-1, Math.floor(asked/10));
+-    const max = RAMP10[block];
++  function nextLearnBaseQuestion(L){
++    const asked = L.asked;
++    const block = Math.min(L.levelRamp.length-1, Math.floor(asked/10));
++    const max = L.levelRamp[block];
+ 
+     const candidates = LEARN_CANDS[max];
+     let minUse=Infinity;
+     for(const k of candidates){
+       const u=L.usage.get(k)||0;
+       if (u<minUse) minUse=u;
+     }
+     let pool=candidates.filter(k => (L.usage.get(k)||0)===minUse && !L.recent.includes(k));
+     if (!pool.length) pool=candidates.filter(k => (L.usage.get(k)||0)===minUse);
+     if (!pool.length) pool=candidates.slice();
+ 
+     const pick=pool[randInt(0,pool.length-1)];
+     L.usage.set(pick,(L.usage.get(pick)||0)+1);
+     L.recent.push(pick);
+     while(L.recent.length>10) L.recent.shift();
+ 
+     const {a:aa,b:bb}=parseKey(pick);
+     const swap=Math.random()<0.5;
+     let a=swap?bb:aa, b=swap?aa:bb;
+ 
+     // reduce 0 early
+     if (block<=1 && (a===0 || b===0) && Math.random()<0.7){
+       a = randInt(1,max); b = randInt(1,max);
+     }
+ 
+@@ -1271,97 +1572,105 @@
+     if (near!==correct) opts.add(near);
+     while(opts.size<3){
+       const r=Math.random()<0.65 ? clamp(correct+randInt(-20,20),0,100) : randInt(0,100);
+       opts.add(r);
+     }
+     return shuffle([...opts]);
+   }
+ 
+   // ===== KEYPAD =====
+   function buildKeypad(){
+     keypad.innerHTML="";
+     const keys=["1","2","3","4","5","6","7","8","9","C","0","OK"];
+     for(const k of keys){
+       const b=document.createElement("button");
+       b.type="button";
+       b.className="key";
+       b.textContent=k;
+       if (k==="OK") b.classList.add("ok");
+       if (k==="C") b.classList.add("del");
+       b.addEventListener("click", ()=>onKey(k));
+       keypad.appendChild(b);
+     }
+   }
+ 
+   // ===== STATE =====
+-  const state={
+-    mode:"beginner",
+-    nick:"Sonia",
+-    locked:false,
++  const state={
++    mode:"beginner",
++    nick:"Sonia",
++    playerId: selectedPlayerId,
++    locked:false,
+ 
+     correct:0,
+     wrong:0,
+     lives:3,
+ 
+     qs:[],
+     i:0,
+ 
+     typed:"",
+     triesLeft:3,
+ 
+     // learn
+-    learn:{
+-      phase:"main", // main|test
+-      asked:0,      // how many questions in main have been ASKED so far (0..99)
+-      repeatCooldown:0, // >>> NEW: cooldown for repeats
++    learn:{
++      phase:"main", // main|test
++      asked:0,      // how many questions in main have been ASKED so far (0..99)
++      levelIndex: learnProgress.selected,
++      levelId: LEARN_LEVELS[learnProgress.selected].id,
++      levelLabel: LEARN_LEVELS[learnProgress.selected].label,
++      levelReward: LEARN_LEVELS[learnProgress.selected].reward,
++      levelTotal: LEARN_LEVELS[learnProgress.selected].total,
++      levelRamp: LEARN_LEVELS[learnProgress.selected].ramp,
++      repeatCooldown:0, // >>> NEW: cooldown for repeats
+       scheduled:[], // {q, remaining}
+       ready:[],     // queue of q
+       usage:new Map(),
+       recent:[],
+       wrongFreq:new Map(), // key -> {q,count,lastTs}
+       mainCorrectFirst:0,
+       mainWrongFirst:0,
+       test:[],
+       testIndex:0,
+       testCorrect:0,
+       testWrong:0
+     },
+     currentQ:null,
+     currentIsRepeat:false
+   };
+ 
+   function setTyped(str){
+     state.typed=str;
+     typeDisplay.textContent=str.length?str:"0";
+   }
+ 
+-  function showTyping(label){
+-    typeWrap.classList.add("show");
+-    answersWrap.style.display="none";
+-    triesPill.textContent=label;
+-    hintStat.innerHTML="<span>Wpisuj wynik</span>";
+-  }
++  function showTyping(label){
++    typeWrap.classList.add("show");
++    answersWrap.style.display="none";
++    triesPill.textContent=label;
++    const hint = state.mode === "learn" ? `Wpisuj wynik • ${state.learn.levelLabel}` : "Wpisuj wynik";
++    hintStat.innerHTML=`<span>${hint}</span>`;
++  }
+   function hideTyping(){
+     typeWrap.classList.remove("show");
+     answersWrap.style.display="grid";
+   }
+ 
+   function lockAll(v){
+     state.locked=v;
+     [...answersWrap.querySelectorAll("button")].forEach(b=>b.disabled=v);
+     [...keypad.querySelectorAll("button")].forEach(b=>b.disabled=v);
+   }
+ 
+   // ===== LEARN: scheduling + picking repeats =====
+   function noteWrongFrequency(L, q){
+     const cur=L.wrongFreq.get(q.key);
+     if (!cur) L.wrongFreq.set(q.key,{q,count:1,lastTs:Date.now()});
+     else { cur.count+=1; cur.lastTs=Date.now(); }
+   }
+ 
+   function scheduleOrResetRepeat(L, q){
+     // if already ready, keep it
+     if (L.ready.find(x=>x.key===q.key)) return;
+     // if already scheduled, reset to 4
+     const it = L.scheduled.find(x=>x.q.key===q.key);
+     if (it){ it.remaining = LEARN_REPEAT_AFTER; return; }
+     L.scheduled.push({q, remaining: LEARN_REPEAT_AFTER});
+@@ -1408,101 +1717,51 @@
+       const q = pickBestRepeat(L);
+       // set cooldown randomly 2–3
+       L.repeatCooldown = randInt(LEARN_REPEAT_COOLDOWN_MIN, LEARN_REPEAT_COOLDOWN_MAX);
+       return { q, isRepeat:true };
+     }
+     // else serve base
+     return { q: nextLearnBaseQuestion(L), isRepeat:false };
+   }
+ 
+   function buildLearnTest(L){
+     const entries=[...L.wrongFreq.values()];
+     entries.sort((a,b)=> b.count - a.count || b.lastTs - a.lastTs);
+     const picked=entries.slice(0,LEARN_TEST_COUNT).map(e=>e.q);
+ 
+     while(picked.length<LEARN_TEST_COUNT){
+       // fill with random from full 0..10
+       const a=randInt(0,10), b=randInt(0,10);
+       const q=makeQ(a,b,"test");
+       if (!picked.find(x=>x.key===q.key)) picked.push(q);
+     }
+     L.test=picked;
+     L.testIndex=0;
+     L.phase="test";
+   }
+ 
+-  // ===== MODE RESET =====
+-  function resetForMode(mode){
+-    state.mode=mode;
+-    state.locked=false;
+-    state.correct=0;
+-    state.wrong=0;
+-    state.lives=3;
+-    state.typed="";
+-    state.triesLeft=3;
+-    state.currentQ=null;
+-    state.currentIsRepeat=false;
+-
+-    hideEq(); hideWin(); hideSad();
+-    toast.classList.remove("show");
+-
+-    scoreEl.textContent="0";
+-    qNum.textContent="0";
+-    setProgress(0);
+-
+-    playMode.textContent = `Tryb: ${MODES[mode].label}`;
+-    modeBadge.textContent = "—";
+-
+-    if (MODES[mode].lives){
+-      statLives.classList.remove("hidden");
+-      renderLives(state.lives);
+-    } else {
+-      statLives.classList.add("hidden");
+-      livesEl.innerHTML="";
+-    }
+-
+-    if (MODES[mode].hasTimer){
+-      timeLabel.textContent="Czas";
+-      timeLeftEl.textContent=`${MODES[mode].seconds}s`;
+-      timerBar.style.width="100%";
+-    } else {
+-      setNoTimer();
+-    }
+-
+-    qTotal.textContent = String(MODES[mode].total + (mode==="learn"?LEARN_TEST_COUNT:0));
+-
+-    if (MODES[mode].input==="choice"){
+-      hideTyping();
+-      hintStat.innerHTML="<span>Wybierz odpowiedź</span>";
+-    } else {
+-      showTyping(mode==="master" ? "Próby: 3/3" : "Bez czasu");
+-      setTyped("");
+-    }
+-    lockAll(false);
+-  }
+-
+-  // ===== RENDER: Beginner =====
++  // ===== RENDER: Beginner =====
+   function renderBeginner(){
+     const q=state.qs[state.i];
+     state.currentQ=q;
+ 
+     modeBadge.textContent=q.meta;
+     questionText.textContent=`${q.a} × ${q.b} = ?`;
+ 
+     const options=makeChoiceOptions(q.correct);
+     answersWrap.innerHTML="";
+     options.forEach(v=>{
+       const b=document.createElement("button");
+       b.className="ansBtn";
+       b.textContent=String(v);
+       b.addEventListener("click", ()=>onBeginnerAnswer(v));
+       answersWrap.appendChild(b);
+     });
+     hideTyping();
+     lockAll(false);
+ 
+     qNum.textContent=String(state.i+1);
+     scoreEl.textContent=String(state.correct);
+     setProgress((state.i / MODES.beginner.total)*100);
+ 
+     startTimer(MODES.beginner.seconds*1000);
+   }
+@@ -1582,111 +1841,111 @@
+       setTyped("");
+       beep(240,0.10);
+       return;
+     }
+ 
+     state.wrong+=1;
+     state.lives-=1;
+     renderLives(state.lives);
+     showToast(`Zabrakło prób… poprawnie: ${q.correct}`);
+     lockAll(true);
+ 
+     setTimeout(()=>{
+       if (state.lives<=0) endLose();
+       else nextMaster();
+     }, 650);
+   }
+ 
+   function nextMaster(){
+     state.i+=1;
+     if (state.i>=MODES.master.total){ endWin(); return; }
+     state.triesLeft=3;
+     renderMaster();
+   }
+ 
+   // ===== RENDER: Learn =====
+-  function renderLearn(){
+-    const L=state.learn;
+-    const totalAll = MODES.learn.total + LEARN_TEST_COUNT;
+-
+-    if (L.phase==="main"){
+-      // stop when asked reaches 100
+-      if (L.asked >= MODES.learn.total){
+-        buildLearnTest(L);
+-        return renderLearn();
+-      }
++  function renderLearn(){
++    const L=state.learn;
++    const totalAll = L.levelTotal + LEARN_TEST_COUNT;
++
++    if (L.phase==="main"){
++      // stop when asked reaches 100
++      if (L.asked >= L.levelTotal){
++        buildLearnTest(L);
++        return renderLearn();
++      }
+ 
+       // choose question with cooldown-limited repeats
+       const pick = nextLearnQuestion(L);
+       state.currentQ = pick.q;
+       state.currentIsRepeat = pick.isRepeat;
+ 
+-      modeBadge.textContent = pick.isRepeat ? "Powtórka" : pick.q.meta;
+-      questionText.textContent = `${pick.q.a} × ${pick.q.b} = ?`;
++      modeBadge.textContent = pick.isRepeat ? `Powtórka • ${L.levelLabel}` : `${pick.q.meta} • ${L.levelLabel}`;
++      questionText.textContent = `${pick.q.a} × ${pick.q.b} = ?`;
+ 
+       answersWrap.innerHTML="";
+       showTyping("Bez czasu");
+       setTyped("");
+       lockAll(false);
+ 
+       // HUD
+       L.asked += 1; // count asked question
+-      qNum.textContent = String(L.asked);
+-      qTotal.textContent = String(totalAll);
+-      setProgress((L.asked / totalAll) * 100);
+-      scoreEl.textContent = String(L.mainCorrectFirst + L.testCorrect);
+-      setNoTimer();
++      qNum.textContent = String(L.asked);
++      qTotal.textContent = String(totalAll);
++      setProgress((L.asked / totalAll) * 100);
++      scoreEl.textContent = String(L.mainCorrectFirst + L.testCorrect);
++      setNoTimer();
+ 
+       return;
+     }
+ 
+     // test phase
+     const q=L.test[L.testIndex];
+     state.currentQ=q;
+ 
+     modeBadge.textContent = `TEST ${L.testIndex+1}/10`;
+     questionText.textContent = `${q.a} × ${q.b} = ?`;
+ 
+     const options=makeChoiceOptions(q.correct);
+     answersWrap.innerHTML="";
+     options.forEach(v=>{
+       const b=document.createElement("button");
+       b.className="ansBtn";
+       b.textContent=String(v);
+       b.addEventListener("click", ()=>onLearnTestAnswer(v));
+       answersWrap.appendChild(b);
+     });
+ 
+     hideTyping();
+     lockAll(false);
+ 
+-    qNum.textContent = String(MODES.learn.total + (L.testIndex+1));
+-    qTotal.textContent = String(totalAll);
+-    setProgress(((MODES.learn.total + L.testIndex) / totalAll) * 100);
+-    scoreEl.textContent = String(L.mainCorrectFirst + L.testCorrect);
+-    setNoTimer();
+-  }
++    qNum.textContent = String(L.levelTotal + (L.testIndex+1));
++    qTotal.textContent = String(totalAll);
++    setProgress(((L.levelTotal + L.testIndex) / totalAll) * 100);
++    scoreEl.textContent = String(L.mainCorrectFirst + L.testCorrect);
++    setNoTimer();
++  }
+ 
+   function submitLearn(){
+     const L=state.learn;
+     const q=state.currentQ;
+     const val=Number(state.typed||"0");
+     const isRepeat = state.currentIsRepeat;
+ 
+     if (val===q.correct){
+       if (!isRepeat) L.mainCorrectFirst += 1;
+       showToast("Dobrze! ✅");
+       beep(880);
+       lockAll(true);
+       setTyped("");
+ 
+       // after each asked question: tick schedules + cooldown
+       advanceLearnQueues(L);
+ 
+       setTimeout(()=>{
+         lockAll(false);
+         renderLearn();
+       }, 260);
+       return;
+     }
+ 
+     // wrong: count only first-try wrong for non-repeat (as in your scoring)
+@@ -1703,259 +1962,312 @@
+     advanceLearnQueues(L);
+ 
+     setTimeout(()=>{
+       hideEq();
+       lockAll(false);
+       renderLearn();
+     }, LEARN_SHOW_EQ_MS);
+   }
+ 
+   function onLearnTestAnswer(v){
+     const L=state.learn;
+     if (state.locked) return;
+     lockAll(true);
+ 
+     const q=state.currentQ;
+     if (v===q.correct){
+       L.testCorrect += 1;
+       showToast("Dobrze! ✅");
+       beep(880);
+     } else {
+       L.testWrong += 1;
+       showToast(`Źle… poprawnie: ${q.correct}`);
+       beep(240,0.10);
+     }
+ 
+-    setTimeout(()=>{
+-      L.testIndex += 1;
+-      if (L.testIndex>=LEARN_TEST_COUNT){
+-        endWin();
+-      } else {
+-        lockAll(false);
+-        renderLearn();
+-      }
+-    }, 420);
+-  }
++    setTimeout(()=>{
++      L.testIndex += 1;
++      if (L.testIndex>=LEARN_TEST_COUNT){
++        endLearnLevel();
++      } else {
++        lockAll(false);
++        renderLearn();
++      }
++    }, 420);
++  }
+ 
+   // ===== KEYPAD =====
+   function onKey(k){
+     if (state.locked) return;
+     if (state.mode!=="learn" && state.mode!=="master") return;
+ 
+     ensureAudio();
+ 
+     if (k==="C"){ setTyped(""); beep(300,0.05); return; }
+     if (k==="OK"){
+       if (state.mode==="master") return submitMaster();
+       return submitLearn();
+     }
+     if (state.typed.length>=3) return;
+     setTyped(state.typed + k);
+     beep(520,0.03);
+   }
+ 
+   window.addEventListener("keydown", (e)=>{
+     if (!playScreen.classList.contains("show")) return;
+     if (state.mode!=="learn" && state.mode!=="master") return;
+     if (e.key>="0" && e.key<="9") onKey(e.key);
+     if (e.key==="Enter") onKey("OK");
+     if (e.key==="Backspace" || e.key==="Delete") onKey("C");
+   });
+ 
+   // ===== START / END =====
+-  function computeRunStats(){
+-    let correct=state.correct, wrong=state.wrong, total=Math.max(1, correct+wrong);
+-
+-    if (state.mode==="learn"){
+-      const L=state.learn;
+-      correct = L.mainCorrectFirst + L.testCorrect;
+-      wrong   = L.mainWrongFirst + L.testWrong;
+-      total   = Math.max(1, correct + wrong);
+-    }
+-    const pct = (correct/total)*100;
+-    return {correct, wrong, total, pct};
+-  }
+-
+-  function endLose(){
+-    stopTimer();
+-    lockAll(true);
+-    hideWin(); hideEq();
+-    showSad();
+-    showToast("O nie… 😢");
+-
+-    const stats=computeRunStats();
+-    pushRun(state.mode, { ts: Date.now(), pct: stats.pct, correct: stats.correct, total: stats.total });
+-    rankTab=state.mode;
+-    setActiveTab(rankTab);
+-
+-    setTimeout(()=>{
+-      hideSad();
+-      showSelect();
++  function computeRunStats(){
++    let correct=state.correct, wrong=state.wrong, total=Math.max(1, correct+wrong);
++
++    if (state.mode==="learn"){
++      const L=state.learn;
++      correct = L.mainCorrectFirst + L.testCorrect;
++      wrong   = L.mainWrongFirst + L.testWrong;
++      total   = Math.max(1, correct + wrong);
++    }
++    const pct = (correct/total)*100;
++    return {correct, wrong, total, pct};
++  }
++
++  function endLearnLevel(){
++    stopTimer();
++    lockAll(true);
++    hideSad(); hideEq(); hideWin();
++
++    const stats=computeRunStats();
++    const run = { ts: Date.now(), pct: stats.pct, correct: stats.correct, total: stats.total };
++    pushRun(state.mode, run);
++    updateRecord("learn", state.playerId, run, state.learn.levelId);
++
++    rankTab="learn";
++    setActiveTab(rankTab);
++    renderLast10(rankTab);
++    renderRecords(selectedPlayerId);
++
++    const nextIndex = Math.min(learnProgress.unlocked + 1, LEARN_LEVELS.length - 1);
++    if (state.learn.levelIndex >= learnProgress.unlocked && nextIndex > learnProgress.unlocked){
++      learnProgress = { unlocked: nextIndex, selected: nextIndex };
++      saveLearnProgress(learnProgress);
++    }
++    renderLevelButtons();
++
++    showReward(`Poziom ${state.learn.levelLabel} ukończony!`, `Nagroda: ${state.learn.levelReward}`);
++    showToast("Super! 🎉");
++
++    setTimeout(()=>{
++      hideReward();
++      showSelect();
++    }, 3500);
++  }
++
++  function endLose(){
++    stopTimer();
++    lockAll(true);
++    hideWin(); hideEq(); hideReward();
++    showSad();
++    showToast("O nie… 😢");
++
++    const stats=computeRunStats();
++    const run = { ts: Date.now(), pct: stats.pct, correct: stats.correct, total: stats.total };
++    pushRun(state.mode, run);
++    updateRecord(state.mode, state.playerId, run, state.learn.levelId);
++    rankTab=state.mode;
++    setActiveTab(rankTab);
++    renderLast10(rankTab);
++    renderRecords(selectedPlayerId);
++
++    setTimeout(()=>{
++      hideSad();
++      showSelect();
+     }, LOSE_SHOW_MS);
+   }
+ 
+   function endWin(){
+-    stopTimer();
+-    lockAll(true);
+-    hideSad(); hideEq();
+-
+-    const stats=computeRunStats();
+-    pushRun(state.mode, { ts: Date.now(), pct: stats.pct, correct: stats.correct, total: stats.total });
+-    rankTab=state.mode;
+-    setActiveTab(rankTab);
+-
+-    showWinMsg(state.nick);
++    stopTimer();
++    lockAll(true);
++    hideSad(); hideEq(); hideReward();
++
++    const stats=computeRunStats();
++    const run = { ts: Date.now(), pct: stats.pct, correct: stats.correct, total: stats.total };
++    pushRun(state.mode, run);
++    updateRecord(state.mode, state.playerId, run, state.learn.levelId);
++    rankTab=state.mode;
++    setActiveTab(rankTab);
++    renderLast10(rankTab);
++    renderRecords(selectedPlayerId);
++
++    showWinMsg(state.nick);
+     showToast("Wygrana! 🎉");
+     startFireworks();
+     startFanfare10s();
+ 
+     setTimeout(()=>{
+       stopFireworks();
+       stopFanfare10s();
+       hideWin();
+       showSelect();
+     }, WIN_CELEBRATION_MS);
+   }
+ 
+   // fanfare
+   let fanfareTimer=null;
+   function startFanfare10s(){
+     if (!audioReady) return;
+     const motif=()=>{
+       const notes=[523.25,659.25,783.99,1046.5,1318.5,1567.98];
+       notes.forEach((f,i)=>setTimeout(()=>beep(f,0.10), i*160));
+     };
+     motif();
+     fanfareTimer=setInterval(motif, 2000);
+   }
+   function stopFanfare10s(){
+     if (fanfareTimer){ clearInterval(fanfareTimer); fanfareTimer=null; }
+   }
+ 
+-  function startMode(mode){
+-    ensureAudio();
+-    state.nick = sanitizeNick(nickEl.value);
+-    nickEl.value = state.nick;
+-
+-    resetForMode(mode);
+-    showPlay();
++  function startMode(mode){
++    ensureAudio();
++    state.nick = sanitizeNick(nickEl.value);
++    nickEl.value = state.nick;
++    state.playerId = selectedPlayerId;
++
++    resetForMode(mode);
++    showPlay();
+ 
+     if (mode==="beginner"){
+       state.qs = genBeginner(MODES.beginner.total);
+       state.i = 0;
+       state.correct=0; state.wrong=0; state.lives=3;
+       qTotal.textContent = String(MODES.beginner.total);
+       statLives.classList.remove("hidden");
+       renderLives(state.lives);
+       hintStat.innerHTML="<span>Wybierz odpowiedź</span>";
+       renderBeginner();
+       return;
+     }
+ 
+     if (mode==="master"){
+       state.qs = genMaster(MODES.master.total);
+       state.i = 0;
+       state.correct=0; state.wrong=0; state.lives=3;
+       state.triesLeft=3;
+       qTotal.textContent = String(MODES.master.total);
+       statLives.classList.remove("hidden");
+       renderLives(state.lives);
+       hintStat.innerHTML="<span>Wpisuj wynik</span>";
+       renderMaster();
+       return;
+     }
+ 
+-    // learn
+-    const L=state.learn;
+-    L.phase="main";
+-    L.asked=0;
+-    L.repeatCooldown=0; // >>> IMPORTANT: reset cooldown
++    // learn
++    const L=state.learn;
++    const level = LEARN_LEVELS[learnProgress.selected];
++    L.levelIndex = learnProgress.selected;
++    L.levelId = level.id;
++    L.levelLabel = level.label;
++    L.levelReward = level.reward;
++    L.levelTotal = level.total;
++    L.levelRamp = level.ramp;
++    playMode.textContent = `Tryb: ${MODES.learn.label} • ${L.levelLabel}`;
++    L.phase="main";
++    L.asked=0;
++    L.repeatCooldown=0; // >>> IMPORTANT: reset cooldown
+     L.scheduled=[];
+     L.ready=[];
+     L.usage=new Map();
+     L.recent=[];
+     L.wrongFreq=new Map();
+     L.mainCorrectFirst=0;
+     L.mainWrongFirst=0;
+     L.test=[];
+     L.testIndex=0;
+     L.testCorrect=0;
+     L.testWrong=0;
+-
+-    state.correct=0; state.wrong=0;
+-    qTotal.textContent = String(MODES.learn.total + LEARN_TEST_COUNT);
+-    statLives.classList.add("hidden");
+-    livesEl.innerHTML="";
+-    hintStat.innerHTML="<span>Wpisuj wynik</span>";
+-    renderLearn();
+-  }
+-
+-  function resetForMode(mode){
+-    state.mode=mode;
+-    state.locked=false;
+-    state.correct=0; state.wrong=0; state.lives=3;
+-    state.typed=""; state.triesLeft=3;
+-    hideEq(); hideWin(); hideSad();
+-    toast.classList.remove("show");
+-    scoreEl.textContent="0";
+-    qNum.textContent="0";
+-    setProgress(0);
+-
+-    playMode.textContent = `Tryb: ${MODES[mode].label}`;
+-    modeBadge.textContent = "—";
++
++    state.correct=0; state.wrong=0;
++    qTotal.textContent = String(L.levelTotal + LEARN_TEST_COUNT);
++    statLives.classList.add("hidden");
++    livesEl.innerHTML="";
++    hintStat.innerHTML=`<span>Wpisuj wynik • ${L.levelLabel}</span>`;
++    renderLearn();
++  }
++
++  function resetForMode(mode){
++    state.mode=mode;
++    state.locked=false;
++    state.correct=0; state.wrong=0; state.lives=3;
++    state.typed=""; state.triesLeft=3;
++    hideEq(); hideWin(); hideSad(); hideReward();
++    toast.classList.remove("show");
++    scoreEl.textContent="0";
++    qNum.textContent="0";
++    setProgress(0);
++
++    playMode.textContent = `Tryb: ${MODES[mode].label}`;
++    modeBadge.textContent = "—";
++    updatePlayerPill();
+ 
+     if (MODES[mode].hasTimer){
+       timeLabel.textContent="Czas";
+       timeLeftEl.textContent=`${MODES[mode].seconds}s`;
+       timerBar.style.width="100%";
+     } else {
+       setNoTimer();
+     }
+ 
+     if (MODES[mode].input==="choice"){
+       hideTyping();
+     } else {
+       showTyping(mode==="master" ? "Próby: 3/3" : "Bez czasu");
+       setTyped("");
+     }
+ 
+     lockAll(false);
+   }
+ 
+   // ===== EVENTS =====
+   tileRow.addEventListener("click", (e)=>{
+     const tile=e.target.closest(".tile");
+     if (!tile) return;
+     startMode(tile.dataset.mode);
+   });
+ 
+   tabs.addEventListener("click", (e)=>{
+     const t=e.target.closest(".tab");
+     if (!t) return;
+     rankTab=t.dataset.mode;
+     setActiveTab(rankTab);
+     renderLast10(rankTab);
+     ensureAudio();
+   });
+ 
+-  quitBtn.addEventListener("click", ()=>{
+-    stopTimer();
+-    stopFireworks();
+-    stopFanfare10s();
+-    hideEq(); hideWin(); hideSad();
+-    showSelect();
+-  });
++  quitBtn.addEventListener("click", ()=>{
++    stopTimer();
++    stopFireworks();
++    stopFanfare10s();
++    hideEq(); hideWin(); hideSad(); hideReward();
++    showSelect();
++  });
+ 
+   window.addEventListener("pointerdown", ()=>{ ensureAudio(); }, { once:true });
+ 
+   // ===== INIT =====
+-  function init(){
+-    buildKeypad();
+-    setStateLabel("Stan: WYBIERZ TRYB");
+-    setActiveTab(rankTab);
+-    renderLast10(rankTab);
+-  }
++  function init(){
++    buildKeypad();
++    setStateLabel("Stan: WYBIERZ TRYB");
++    setActiveTab(rankTab);
++    renderLast10(rankTab);
++    renderPlayerButtons();
++    renderLevelButtons();
++    renderRecords(selectedPlayerId);
++    updatePlayerPill();
++  }
+   init();
+ })();
+ </script>
+ </body>
+ </html>
+ 
+EOF
+)
